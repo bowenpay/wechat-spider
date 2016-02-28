@@ -1,0 +1,7 @@
+Django==1.8.1
+MySQL-python==1.2.5
+hiredis==0.2.0
+redis==2.10.3
+oss2==2.0.5
+
+

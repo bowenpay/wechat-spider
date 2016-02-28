@@ -1,0 +1,7 @@
+.idea
+*.pyc
+logs
+local_settings.py
+.DS_Store
+/static/
+bin/t.py
