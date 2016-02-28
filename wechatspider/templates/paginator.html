@@ -1,0 +1,33 @@
+{% load paginator %}
+{% if pages > 1 %}
+<nav>
+    <ul class="pagination">
+   {% if has_previous %}
+      <li class="prev_page"><a href="{{ params|update_page:previous|gen_get_params }}" aria-label="Previous"><span aria-hidden="true">← 上一页</span></a></li>
+   {% else %}
+      <li class="prev_page disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">← 上一页</span></a></li>
+   {% endif %}
+
+   {% if show_first %}
+      <li><a href="{{ params|update_page:1|gen_get_params }}">1</a></li>
+      <li><span>...</span></li>
+   {% endif %}
+   {% for linkpage in page_numbers %}
+      {% ifequal linkpage page %}
+         <li class="active"><span>{{ page }}</span></li>
+      {% else %}
+         <li><a href="{{ params|update_page:linkpage|gen_get_params }}">{{ linkpage }}</a></li>
+      {% endifequal %}
+   {% endfor %}
+   {% if show_last %}
+      <li><span>...</span></li>
+      <li><a href="{{ params|update_page:pages|gen_get_params }}">{{ pages }}</a></li>
+   {% endif %}
+   {% if has_next %}
+      <li class="next_page"><a href="{{ params|update_page:next|gen_get_params }}" aria-label="Next"><span aria-hidden="true">下一页 →</span></a></li>
+   {% else %}
+      <li class="next_page disabled"><a herf="#" aria-label="Next"><span aria-hidden="true">下一页 →</span></a></li>
+   {% endif %}
+    </ul>
+</nav>
+{% endif %}

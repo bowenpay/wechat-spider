@@ -1,0 +1,68 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    {% block title %}
+    <title>PySpace</title>
+    <meta name="keywords" content="Python,Web开发,django,flask,程序员,投资,房产,宅男,美女图片" />
+    <meta name="description" content="程序员聚集地,程序员感兴趣的话题都在这里" />
+    {% endblock %}
+
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <!-- font-awesome -->
+    <link href="{% static 'font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
+
+    <!-- Pymanage -->
+    <link href="{% static 'web/css/base.css' %}" rel="stylesheet">
+    {% block header_css %}
+
+    {% endblock %}
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+     <div id="wrapper">
+         {% block nav %}
+         {% include "nav.html" %}
+         {% endblock %}
+         {% block main %}
+         <div id="page-wrapper">
+            <div class="container">
+            {% for message in messages %}
+              <div class="flash-message alert alert-{{ message.tags }}  alert-dismissible" >
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                {{ message }}
+              </div>
+            {% endfor %}
+             {% block main-content %}
+
+             {% endblock %}
+             </div>
+         </div>
+         {% endblock %}
+
+         {% block footer %}
+         {% include "footer.html" %}
+         {% endblock %}
+
+     </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="{% static 'jquery/jquery-1.11.3.min.js' %}"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    {% block footer-js %}
+
+    {% endblock %}
+
+  </body>
+</html>
