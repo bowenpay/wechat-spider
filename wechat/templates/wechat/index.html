@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load paginator %}
+{% block main-content %}
+<div class="row">
+  <div class="col-md-12">
+
+    <div class="topics panel panel-default">
+      <div class="panel-body">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>头像</th>
+              <th>公众号和ID</th>
+              <th>爬取频率</th>
+              <th>下次爬取时间</th>
+              <th>最近1天文章</th>
+              <th>最近1周</th>
+              <th>文章总数</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for item in wechats %}
+            <tr>
+              <td>{{ item.id}}</td>
+              <td><img src="{{ item.avatar}}" class="avatar-list"></td>
+              <td><h5>{{ item.name}}</h5> <span class="wechat-id">{{ item.wechatid}}</span></td>
+              <td>{{ item.frequency}}</td>
+              <td>{{ item.next_crawl_time}}</td>
+              <td>{{ item.last_day_topics_count}}</td>
+              <td>{{ item.last_week_topics_count}}</td>
+              <td>{{ item.total_topics_count}}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel-footer clearfix">
+        {% paginator wechats %}
+      </div>
+
+    </div><!--.topics-->
+
+  </div>
+</div>
+{% endblock %}

@@ -1,15 +1,30 @@
 # -*- coding: utf-8 -*-
 __author__ = 'yijingping'
 from django.db import models
-
+from datetime import date, datetime, timedelta
 
 class Wechat(models.Model):
     avatar = models.CharField(max_length=500, default='', verbose_name='公众号头像')
     name = models.CharField(max_length=100, verbose_name='公众号')
-    wechatid = models.CharField(max_length=100, verbose_name='公众号id')
+    wechatid = models.CharField(max_length=100, verbose_name='公众号id', unique=True)
     frequency = models.IntegerField(default=0, verbose_name='爬取频率, 单位:分钟')
     next_crawl_time = models.DateTimeField(auto_now_add=True, verbose_name='下次爬取时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    history_start = models.DateField(null=True, blank=True, verbose_name='创建时间')
+    history_end = models.DateField(null=True, blank=True, verbose_name='创建时间')
+
+    def last_day_topics_count(self):
+        yestoday = date.today() - timedelta(days=1)
+        yestoday_datetime = datetime.combine(yestoday, datetime.min.time())
+        return Topic.objects.filter(wechat=self, publish_time__gt=yestoday_datetime).count()
+
+    def last_week_topics_count(self):
+        last_week = date.today() - timedelta(days=7)
+        last_week_datetime = datetime.combine(last_week, datetime.min.time())
+        return Topic.objects.filter(wechat=self, publish_time__gt=last_week_datetime).count()
+
+    def total_topics_count(self):
+        return Topic.objects.filter(wechat=self).count()
 
     def __unicode__(self):
         return self.name
