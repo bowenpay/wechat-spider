@@ -105,6 +105,66 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
+# logging config
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
+# redis config
+REDIS_OPTIONS = {
+    'host': 'localhost',
+    'port': 6379,
+    'password': '',
+    'db': 4
+}
+
+# crawler config
+CRAWLER_DEBUG = False
+CRAWLER_CONFIG = {
+    'scheduler': 'unicrawler:scheduler',
+    'downloader': 'unicrawler:downloader',
+    'extractor': 'unicrawler:extractor',
+    'processor': 'unicrawler:processor',
+    'global_limit_speed': 'unicrawler:global_limit_speed'
+}
+CRAWLER_GLOBAL_LIMIT_SPEED = 2
+
+# aliyun oss2
+OSS2_CONFIG = {
+    "ACCESS_KEY_ID": "",
+    "ACCESS_KEY_SECRET": "",
+    "ENDPOINT": "",
+    "BUCKET_DOMAIN": "oss-cn-beijing.aliyuncs.com",
+    "BUCKET_NAME": "pythonzone",
+    "IMAGES_PATH": "images/",
+    "VIDEOS_PATH": "videos/",
+    "CDN_DOMAIN": "pystats.bowenpay.com"
+}
 
 ## Import local settings
 try:
