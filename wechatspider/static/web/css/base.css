@@ -15,6 +15,9 @@ hr {
     padding: 5px 12px;
     box-shadow: inset 0px 1px 0px 0px rgba(255,255,255,0.15);
 }
+.wechat-item {
+    max-width: 60%;
+}
 .wechat-item:hover {
     background-color: #f5e79e;
 }
@@ -33,8 +36,9 @@ hr {
 }
 
 .avatar-list{
-    width: 60px;
-    height: 60px;
+    width: 57px;
+    height: 57px;
+    border-radius: 100%;
 }
 .simple_form .form-control {
     border-radius: 0px;
@@ -51,12 +55,18 @@ hr {
     margin-left: 5px;
 }
 #wechat-edit-form label {
-    width: 100px;
+    width: 67px;
     text-align: center;
 }
 #wechat-edit-form .submit-btn {
     margin-left: 100px;
 }
 #start, #end {
+    text-align: center;
+}
+.wechat-table th,.wechat-table td {
+    vertical-align: middle !important;
+}
+.wechat-table .td-center {
     text-align: center;
 }

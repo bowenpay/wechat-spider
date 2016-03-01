@@ -19,7 +19,7 @@ def index(request):
     params = request.GET.copy()
     _obj_list = Wechat.objects.filter().order_by('-id')
 
-    paginator = Paginator(_obj_list, 2)  # Show 25 contacts per page
+    paginator = Paginator(_obj_list, 20)  # Show 20 contacts per page
 
     page = request.GET.get('page')
     try:

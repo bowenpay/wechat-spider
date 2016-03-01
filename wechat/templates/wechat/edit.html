@@ -16,15 +16,16 @@
 
                 {% csrf_token %}
                 <div class="form-group">
-                  <div class="media wechat-item selected">
+                  <div class="media wechat-item ">
                     <div class="media-left">
-                        <img class="media-object" src="{{ wechat.avatar }}" alt="{{ wechat.name }}">
+                        <img class="media-object avatar-list" src="{{ wechat.avatar }}" alt="{{ wechat.name }}">
                     </div>
                     <div class="media-body">
                       <h5 class="media-heading">{{wechat.name}} <span class="wechat-id">微信号: {{wechat.wechatid}}</span></h5>
                       {{wechat.intro}}
                     </div>
                   </div>
+                  <hr />
                 </div>
                 <div class="form-group">
                   <div class="input-group">
@@ -36,7 +37,6 @@
                 <div class="form-group">
                   <div class="input-group">
                     <label for="id_frequency" class="control-label">时间段</label>
-                    <span> 从 </span>
                     <input id="start" type="text" class="form-control" name="history_start" value="{{ form.history_start.value | date:'Y-m-d' }}" required>
                     <span> 至 </span>
                     <input id="end" type="text" class="form-control" name="history_end" value="{{ form.history_end.value | date:'Y-m-d' }}" required>
