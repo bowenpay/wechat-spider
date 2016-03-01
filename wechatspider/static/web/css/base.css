@@ -18,8 +18,12 @@ hr {
 .wechat-item {
     max-width: 60%;
 }
+
+.wechat-item .intro {
+    color: #aaa;
+}
 .wechat-item:hover {
-    background-color: #f5e79e;
+    background-color: #f5f5f5;
 }
 .wechat-item.selected {
     background-color: #F5F5F5;

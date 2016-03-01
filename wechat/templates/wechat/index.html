@@ -24,7 +24,7 @@
             <tr>
               <td><a href="{% url 'wechat.edit' item.id %}">{{ item.id}}</td>
               <td><img src="{{ item.avatar}}" class="avatar-list"></td>
-              <td><h5>{{ item.name}}</h5> <span class="wechat-id">{{ item.wechatid}}</span></td>
+              <td><h5><a target="_blank" href="{{ item.url }}">{{ item.name}}</a></h5> <span class="wechat-id">{{ item.wechatid}}</span></td>
               <td>{{ item.frequency}}</td>
               <td>{{ item.next_crawl_time}}</td>
               <td>{{ item.last_day_topics_count}}</td>
