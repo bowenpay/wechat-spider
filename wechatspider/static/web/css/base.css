@@ -3,9 +3,23 @@ body {
     background: #E7EAEC;
     color: #222527;
 }
-
+a {
+    color: #356DD0;
+}
+hr {
+    border-color: #ddd;
+}
+.btn {
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    padding: 5px 12px;
+    box-shadow: inset 0px 1px 0px 0px rgba(255,255,255,0.15);
+}
 .wechat-item:hover {
     background-color: #f5e79e;
+}
+.wechat-item.selected {
+    background-color: #F5F5F5;
 }
 .wechat-id{
     font-size: x-small;
@@ -14,12 +28,35 @@ body {
 }
 
 .wechat-frequency {
-    max-width: 70px;
-    margin: 0 2px 0 7px;
     text-align: center;
+    width: 70px !important;
 }
 
 .avatar-list{
     width: 60px;
     height: 60px;
+}
+.simple_form .form-control {
+    border-radius: 0px;
+    border-color: #D5DCE1;
+    border: 0px;
+    border-bottom: 1px solid #D5DCE1;
+    box-shadow: inset 0 0px 0px #fff !important;
+    padding: 6px 0px 6px 0;
+    transition: none;
+    float: none;
+    width: auto;
+}
+.simple_form .submit-btn{
+    margin-left: 5px;
+}
+#wechat-edit-form label {
+    width: 100px;
+    text-align: center;
+}
+#wechat-edit-form .submit-btn {
+    margin-left: 100px;
+}
+#start, #end {
+    text-align: center;
 }

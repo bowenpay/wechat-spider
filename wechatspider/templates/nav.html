@@ -14,8 +14,8 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li {% ifequal active_nav "topics" %}class="active"{% endifequal %}><a href="/">公众号<span class="sr-only">(current)</span></a></li>
-        <li {% ifequal active_nav "wiki" %}class="active"{% endifequal %}><a href="/add/">添加公众号</a></li>
+        <li {% ifequal active_nav "wechats" %}class="active"{% endifequal %}><a href="{% url 'wechat.index' %}">公众号<span class="sr-only">(current)</span></a></li>
+        <li {% ifequal active_nav "wechats.add" %}class="active"{% endifequal %}><a href="{% url 'wechat.add' %}">添加公众号</a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->

@@ -7,6 +7,8 @@ class Wechat(models.Model):
     avatar = models.CharField(max_length=500, default='', verbose_name='公众号头像')
     name = models.CharField(max_length=100, verbose_name='公众号')
     wechatid = models.CharField(max_length=100, verbose_name='公众号id', unique=True)
+    url = models.CharField(max_length=500, default='', verbose_name='soso索引链接')
+    intro = models.TextField(default='', verbose_name='简介')
     frequency = models.IntegerField(default=0, verbose_name='爬取频率, 单位:分钟')
     next_crawl_time = models.DateTimeField(auto_now_add=True, verbose_name='下次爬取时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')

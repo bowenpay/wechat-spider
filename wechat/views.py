@@ -4,11 +4,13 @@ __author__ = 'yijingping'
 import requests
 from io import StringIO
 from lxml import etree
-from django.shortcuts import render_to_response, get_object_or_404
+from django.contrib import messages
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.http import HttpResponse
+from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .forms import WechatForm, HistoryForm
+from .forms import WechatForm, HistoryForm, WechatConfigForm
 from .models import Wechat
 
 
@@ -30,6 +32,7 @@ def index(request):
         _objs = paginator.page(paginator.num_pages)
 
     context.update({
+        "active_nav": "wechats",
         "wechats": _objs,
         "params": params
     })
@@ -39,7 +42,9 @@ def index(request):
 
 def add(request):
     if request.method == 'GET':
-        return render_to_response('wechat/add.html', {}, context_instance=RequestContext(request))
+        return render_to_response('wechat/add.html', {
+            "active_nav": "wechats.add",
+        }, context_instance=RequestContext(request))
     elif request.method == 'POST':
         form = WechatForm(request.POST)
         if form.is_valid():
@@ -47,6 +52,27 @@ def add(request):
             return HttpResponse("配置保存成功, 爬虫正在后台努力工作中...")
         else:
             return HttpResponse('添加失败,请重试. 错误: %s' % form.errors)
+
+
+def edit(request, id_):
+    wechat = get_object_or_404(Wechat, pk=id_)
+    if request.method == 'GET':
+        form = WechatConfigForm(instance=wechat)
+        return render_to_response('wechat/edit.html', {}, context_instance=RequestContext(request, {
+            "active_nav": "wechats",
+            "wechat": wechat,
+            "form": form
+        }))
+    elif request.method == 'POST':
+        form = WechatConfigForm(request.POST, instance=wechat)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '保存成功.')
+            return redirect(reverse('wechat.edit', kwargs={"id_": id_}))
+
+        else:
+            messages.error(request, '保存失败,请重试. 错误: %s' % form.errors)
+            return redirect(reverse('users.user', kwargs={"id_": id_}))
 
 
 def search(request):
@@ -85,12 +111,14 @@ def searcy_wechat(query):
         wechatid = node.find(".//h4/span/label").text
         intro_node = node.find(".//p/span[2]")
         intro = ''.join([x for x in intro_node.itertext() if x not in ["red_beg", "red_end"]])
+        url = 'http://weixin.sogou.com' + node.attrib['href']
 
         wechats.append({
             "name": name,
             "wechatid": wechatid,
             "avatar": avatar,
-            "intro": intro
+            "intro": intro,
+            "url": url
         })
 
     return wechats

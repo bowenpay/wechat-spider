@@ -22,7 +22,7 @@
           <tbody>
           {% for item in wechats %}
             <tr>
-              <td>{{ item.id}}</td>
+              <td><a href="{% url 'wechat.edit' item.id %}">{{ item.id}}</td>
               <td><img src="{{ item.avatar}}" class="avatar-list"></td>
               <td><h5>{{ item.name}}</h5> <span class="wechat-id">{{ item.wechatid}}</span></td>
               <td>{{ item.frequency}}</td>

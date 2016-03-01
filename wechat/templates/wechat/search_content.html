@@ -1,6 +1,6 @@
 {% load utils %}
 {% for item in wechats %}
-<div class="media wechat-item" onclick="selectWechat(this,'{{item.name}}', '{{item.wechatid}}', '{{item.avatar}}')">
+<div class="media wechat-item" onclick='selectWechat(this, {{ item.name | as_json }}, {{ item.wechatid  | as_json }}, {{ item.avatar | as_json }}, {{ item.intro | as_json }}, {{ item.url | as_json }})'>
   <div class="media-left">
       <img class="media-object" src="{{ item.avatar }}" alt="...">
   </div>

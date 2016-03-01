@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block header_css %}
+<link href="{% static 'bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}" rel="stylesheet">
+{% endblock %}
+{% block main-content %}
+      <div class="row">
+        <div class="col-md-12">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+                编辑公众号
+            </div>
+            <div class="panel-body">
+              <form id="wechat-edit-form" class="simple_form" action="{% url 'wechat.edit' wechat.id %}" method="post" >
+
+                {% csrf_token %}
+                <div class="form-group">
+                  <div class="media wechat-item selected">
+                    <div class="media-left">
+                        <img class="media-object" src="{{ wechat.avatar }}" alt="{{ wechat.name }}">
+                    </div>
+                    <div class="media-body">
+                      <h5 class="media-heading">{{wechat.name}} <span class="wechat-id">微信号: {{wechat.wechatid}}</span></h5>
+                      {{wechat.intro}}
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="input-group">
+                    <label for="id_frequency" class="control-label">爬取频率</label>
+                    <input id="id_frequency" type="number" class="form-control wechat-frequency" name="frequency" required placeholder="{{ wechat.frequency }}" value="{{ form.frequency.value }}">
+                    <span>分钟</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="input-group">
+                    <label for="id_frequency" class="control-label">时间段</label>
+                    <span> 从 </span>
+                    <input id="start" type="text" class="form-control" name="history_start" value="{{ form.history_start.value | date:'Y-m-d' }}" required>
+                    <span> 至 </span>
+                    <input id="end" type="text" class="form-control" name="history_end" value="{{ form.history_end.value | date:'Y-m-d' }}" required>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary submit-btn">保存</button>
+              </form>
+              <div class="row" style="margin-top: 20px;">
+                <div id="search-content" class="col-md-12">
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+{% endblock %}
+
+{% block footer-js %}
+<script src="{% static 'jquery.form.js' %}"></script>
+<script src="{% static 'bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js' %}"></script>
+
+<script>
+$(document).ready(function() {
+    // 历史时间段
+    $.fn.datepicker.defaults.format = "yyyy-mm-dd";
+    $.fn.datepicker.defaults.language = "zh-CN";
+    $('#start').datepicker({format: "yyyy-mm-dd", startDate: '-30d', endDate:'0d'});
+    $('#end').datepicker({format:"yyyy-mm-dd", startDate: '-30d', endDate:'0d'});
+});
+</script>
+{% endblock %}

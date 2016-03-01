@@ -6,6 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <!-- 禁用referrer, 目的是为了显示soso的图片-->
+    <meta name="referrer" content="no-referrer" />
     {% block title %}
     <title>微信爬虫</title>
     <meta name="keywords" content="" />
@@ -63,6 +65,10 @@
     {% block footer-js %}
 
     {% endblock %}
-
+    <script>
+      window.setTimeout(function() {
+        $(".flash-message").fadeOut(3000);
+      }, 0);
+    </script>
   </body>
 </html>
