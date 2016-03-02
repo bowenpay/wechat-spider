@@ -5,6 +5,8 @@
 
 1）python环境, 检查python的版本，是否为2.7.x，如果不是，安装2.7.6。
 
+centos 6.x 升级python2.6到python2.7,参考教程 http://ruiaylin.github.io/2014/12/12/python%20update/
+
 2）安装依赖包, clone代码
 安装Mysql-python依赖
 ```

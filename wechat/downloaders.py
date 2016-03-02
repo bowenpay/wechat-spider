@@ -3,6 +3,7 @@ __author__ = 'yijingping'
 import time
 import requests
 from random import sample
+from pyvirtualdisplay import Display
 from selenium import webdriver
 
 class RequestsDownloaderBackend(object):
@@ -68,7 +69,11 @@ class SeleniumDownloaderBackend(object):
 
     def download_wechats(self, url):
         res = []
+        # 启动窗口和浏览器
+        display = Display(visible=0, size=(1024, 768))
+        display.start()
         browser = webdriver.Firefox()
+        # 访问url,获取内容
         browser.get(url)
         time.sleep(20)
         elems = browser.find_elements_by_xpath("//div[@class='txt-box']/h4/a")
@@ -84,5 +89,7 @@ class SeleniumDownloaderBackend(object):
                 'avatar': ''
             })
             time.sleep(10)
+        # 关闭浏览器,关闭窗口
         browser.close()
+        display.stop()
         return res
