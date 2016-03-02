@@ -12,7 +12,6 @@ import django
 django.setup()
 
 import _mysql
-import torndb
 from datetime import datetime
 import json
 from django.utils.encoding import smart_str, smart_unicode
