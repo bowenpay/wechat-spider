@@ -2,9 +2,13 @@
 __author__ = 'yijingping'
 import time
 import requests
-from random import sample
+from random import sample, randint
 from pyvirtualdisplay import Display
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from wechatspider.util import get_uniqueid
+from wechat.models import Topic
+
 
 class RequestsDownloaderBackend(object):
     headers = [
@@ -54,6 +58,14 @@ class BrowserDownloaderBackend(object):
         pass
 
 
+BROWSER = None
+
+def get_browser():
+    global BROWSER
+    if not BROWSER:
+        BROWSER = webdriver.Firefox()
+    return BROWSER
+
 class SeleniumDownloaderBackend(object):
     headers = [
         {
@@ -62,25 +74,53 @@ class SeleniumDownloaderBackend(object):
     ]
 
     def __init__(self, proxy=None):
+        # 设置代理
         self.proxy = proxy
+        # 启动窗口和浏览器
+        #self.display = Display(visible=0, size=(1024, 768))
+        #self.display.start()
+        self.browser = get_browser()
+
+    def __del__(self):
+        pass
+        # 关闭浏览器,关闭窗口
+        #self.browser.close()
+        #self.display.stop()
 
     def download(self, url):
         pass
 
-    def download_wechats(self, url):
+    def download_wechats(self, wechat_id, wechatid):
         res = []
-        # 启动窗口和浏览器
-        display = Display(visible=0, size=(1024, 768))
-        display.start()
-        browser = webdriver.Firefox()
-        # 访问url,获取内容
-        browser.get(url)
-        time.sleep(20)
+        browser = self.browser
+        # 访问首页, 输入wchatid, 点击查询
+        browser.get("http://weixin.sogou.com/")
+        print browser.title
+        element_querybox = browser.find_element_by_name('query')
+        element_querybox.send_keys(wechatid, Keys.ARROW_DOWN)
+        element_search_btn = browser.find_element_by_xpath("//input[@value='搜公众号']")
+        element_search_btn.click()
+        print browser.title
+        # 找到搜索列表第一个微信号, 点击进入
+        element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h3")
+        element_wechat.click()
+
+        # 到达最新文章列表页
+        print browser.current_window_handle
+        print browser.window_handles
+        new_handler = browser.window_handles[-1]
+        browser.switch_to.window(new_handler)
         elems = browser.find_elements_by_xpath("//div[@class='txt-box']/h4/a")
-        links = [item.get_attribute('href') for item in elems]
+        links = []
+        for item in elems:
+            title = item.text.strip()
+            print title
+            uniqueid = get_uniqueid('%s:%s' % (wechat_id, title))
+            try:
+                Topic.objects.get(uniqueid=uniqueid)
+            except Topic.DoesNotExist:
+                links.append(item.get_attribute('href'))
         for link in links:
-            # 检查访问间隔限制,等待直至可以访问
-            # TODO
             # 可以访问了
             browser.get(link)
             res.append({
@@ -88,8 +128,17 @@ class SeleniumDownloaderBackend(object):
                 'body': browser.page_source,
                 'avatar': ''
             })
-            time.sleep(10)
-        # 关闭浏览器,关闭窗口
-        browser.close()
-        display.stop()
+            time.sleep(randint(10, 20))
+
+        # 关闭窗口
+        current_hander = browser.current_window_handle
+        all_handlers = browser.window_handles[:]
+
+        def close_window(handler):
+            browser.switch_to.window(handler)
+            browser.close()
+        map(close_window, filter(lambda item: item != current_hander, all_handlers))
+        browser.switch_to.window(current_hander)
+        browser.delete_all_cookies()
+
         return res

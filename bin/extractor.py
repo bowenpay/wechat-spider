@@ -74,7 +74,7 @@ DETAIL_RULES = [
       }
     ]
   }
-];
+]
 
 class Extractor(object):
     def __init__(self):

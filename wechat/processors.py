@@ -9,6 +9,6 @@ class DjangoModelBackend(object):
 
     def process(self, params):
         C = self._class
-        params['uniqueid'] = get_uniqueid(params['url'])
+        params['uniqueid'] = get_uniqueid('%s:%s' % (params['wechat_id'], params['title']))
         C.objects.update_or_create(uniqueid=params['uniqueid'], defaults=params)
 

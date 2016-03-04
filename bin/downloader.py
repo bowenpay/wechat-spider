@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-__author__ = 'yijingping'
 # 加载django环境
 import sys
 import os
 reload(sys)
-sys.setdefaultencoding('utf8') 
+sys.setdefaultencoding('utf8')
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'wechatspider.settings'
 import django
@@ -12,8 +11,9 @@ django.setup()
 
 import time
 import json
+from random import randint
 from django.conf import settings
-from wechatspider.util import get_redis, get_uniqueid
+from wechatspider.util import get_redis
 from wechat.proxies import MysqlProxyBackend
 from wechat.downloaders import SeleniumDownloaderBackend
 
@@ -40,19 +40,6 @@ class Downloader(object):
                 self.redis.psetex(key, CRAWLER_GLOBAL_LIMIT_SPEED, CRAWLER_GLOBAL_LIMIT_SPEED)
                 return False, proxy
 
-    def check_detail_fresh_time(self, data):
-        unique_key, fresh_time, rule_id = data['unique_key'], data["detail_fresh_time"], data["rule_id"]
-        if fresh_time <= 0:
-            return False
-        else:
-            unique_value = ''.join([data.get(item) for item in unique_key])
-            key = 'unicrawler:detail_fresh_time:%s:%s' % (rule_id, get_uniqueid(unique_value))
-            if self.redis.exists(key):
-                return True
-            else:
-                self.redis.setex(key, fresh_time, fresh_time)
-                return False
-
     def run(self):
         r = self.redis
         if settings.CRAWLER_DEBUG:
@@ -67,7 +54,7 @@ class Downloader(object):
             try:
                 data = json.loads(resp_data[1])
 
-                logger.debug(data["url"])
+                logger.debug(data)
                 is_limited, proxy = self.check_limit_speed()
                 if is_limited:
                     print '# 被限制, 放回去, 下次下载'
@@ -77,7 +64,7 @@ class Downloader(object):
                     print '# 未被限制,可以下载'
                     browser = SeleniumDownloaderBackend(proxy=proxy)
 
-                    res = browser.download_wechats(data["url"])
+                    res = browser.download_wechats(data["wechat_id"], data["wechatid"])
                     for item in res:
                         item_data = {
                             "wechat_id": data["wechat_id"],
@@ -87,6 +74,8 @@ class Downloader(object):
                         }
                         r.lpush(CRAWLER_CONFIG["extractor"], json.dumps(item_data))
                         logger.debug(item_data)
+
+                    time.sleep(randint(20, 30))
             except Exception as e:
                 print e
                 raise
