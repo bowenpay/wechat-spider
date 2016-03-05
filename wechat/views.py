@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import WechatForm, HistoryForm, WechatConfigForm
-from .models import Wechat
+from .models import Wechat, Topic
 
 
 def index(request):
@@ -57,12 +57,15 @@ def add(request):
 def edit(request, id_):
     wechat = get_object_or_404(Wechat, pk=id_)
     if request.method == 'GET':
+        context = {}
+        # 编辑信息
         form = WechatConfigForm(instance=wechat)
-        return render_to_response('wechat/edit.html', {}, context_instance=RequestContext(request, {
+        context.update({
             "active_nav": "wechats",
             "wechat": wechat,
             "form": form
-        }))
+        })
+        return render_to_response('wechat/edit.html', {}, context_instance=RequestContext(request, context))
     elif request.method == 'POST':
         form = WechatConfigForm(request.POST, instance=wechat)
         if form.is_valid():
@@ -73,6 +76,43 @@ def edit(request, id_):
         else:
             messages.error(request, '保存失败,请重试. 错误: %s' % form.errors)
             return redirect(reverse('users.user', kwargs={"id_": id_}))
+
+
+
+def wechat_topics(request, id_):
+    wechat = get_object_or_404(Wechat, pk=id_)
+    context = {}
+    # 文章信息
+    params = request.GET.copy()
+    _obj_list = Topic.objects.filter(wechat=wechat).order_by('-publish_time')
+
+    paginator = Paginator(_obj_list, 3 )  # Show 10 contacts per page
+
+    page = request.GET.get('page')
+    try:
+        _objs = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        _objs = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        _objs = paginator.page(paginator.num_pages)
+
+    context.update({
+        "active_nav": "wechats",
+        "wechat": wechat,
+        "topics": _objs,
+        "params": params
+    })
+    return render_to_response('wechat/wechat_topics.html', {}, context_instance=RequestContext(request, context))
+
+
+def topic_detail(request, id_):
+    topic = get_object_or_404(Topic, pk=id_)
+    return render_to_response('wechat/topic_detail.html', {}, context_instance=RequestContext(request, {
+        "topic": topic
+    }))
+
 
 
 def search(request):

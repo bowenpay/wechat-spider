@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load paginator %}
+{% block main-content %}
+<div class="row">
+  <div class="col-md-12">
+
+    <div class="topics panel panel-default">
+      <div class="panel-heading">
+          文章列表
+      </div>
+      <div class="panel-body">
+        <div class="form-group">
+        <div class="media wechat-item ">
+          <div class="media-left">
+              <img class="media-object avatar-list" src="{{ wechat.avatar }}" alt="{{ wechat.name }}">
+          </div>
+          <div class="media-body">
+            <h5 class="media-heading">{{wechat.name}} <span class="wechat-id">微信号: {{wechat.wechatid}}</span></h5>
+            <p class="intro">
+            {{wechat.intro}}
+            </p>
+          </div>
+        </div>
+      <hr />
+      <table class="table table-striped table-hover wechat-table">
+        <thead>
+          <tr>
+            <th>#ID</th>
+            <th>标题</th>
+            <th>原文链接</th>
+            <th>时间</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for item in topics %}
+          <tr>
+            <td>{{ item.id}}</td>
+            <td><a target="_blank" href="{% url 'wechat.topic_detail' item.id %}">{{ item.title}}</a></td>
+            <td><a target="_blank" href="{{ item.url }}">{{ item.url | truncatechars:40 }}</a></td>
+            <td>{{ item.publish_time}}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+        {% paginator topics %}
+    </div><!--.topics-->
+
+  </div>
+</div>
+{% endblock %}

@@ -47,7 +47,7 @@ class Topic(models.Model):
     content = models.TextField(default='', verbose_name='文章内容')
     source = models.TextField(default='', verbose_name='文章原内容')
 
-    publish_time = models.DateTimeField(auto_now_add=True, verbose_name='发布时间')
+    publish_time = models.DateTimeField(verbose_name='发布时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
 

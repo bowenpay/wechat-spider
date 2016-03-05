@@ -5,6 +5,9 @@
   <div class="col-md-12">
 
     <div class="topics panel panel-default">
+      <div class="panel-heading">
+          公众号列表
+      </div>
       <div class="panel-body">
         <table class="table table-striped table-hover wechat-table">
           <thead>
@@ -27,9 +30,9 @@
               <td><h5><a target="_blank" href="{{ item.url }}">{{ item.name}}</a></h5> <span class="wechat-id">{{ item.wechatid}}</span></td>
               <td>{{ item.frequency}}</td>
               <td>{{ item.next_crawl_time}}</td>
-              <td>{{ item.last_day_topics_count}}</td>
-              <td>{{ item.last_week_topics_count}}</td>
-              <td>{{ item.total_topics_count}}</td>
+              <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.last_day_topics_count}}</a></td>
+              <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.last_week_topics_count}}</a></td>
+              <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.total_topics_count}}</a></td>
             </tr>
           {% endfor %}
           </tbody>

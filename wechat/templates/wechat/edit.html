@@ -42,14 +42,11 @@
                     <input id="start" type="text" class="form-control" name="history_start" value="{{ form.history_start.value | date:'Y-m-d' }}" required>
                     <span> 至 </span>
                     <input id="end" type="text" class="form-control" name="history_end" value="{{ form.history_end.value | date:'Y-m-d' }}" required>
+                    <button type="submit" class="btn btn-primary" style="margin-left: 20px;">保存</button>
                   </div>
                 </div>
-                <button type="submit" class="btn btn-primary submit-btn">保存</button>
               </form>
-              <div class="row" style="margin-top: 20px;">
-                <div id="search-content" class="col-md-12">
-                </div>
-              </div>
+
             </div>
           </div>
 
