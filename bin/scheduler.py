@@ -39,8 +39,8 @@ class Scheduler(object):
                 r.lpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))
 
                 # 更新index_rule
-                #item.next_crawl_time = now + timedelta(minutes=item.frequency)
-                item.next_crawl_time = now + timedelta(seconds=item.frequency)
+                item.next_crawl_time = now + timedelta(minutes=item.frequency)
+                #item.next_crawl_time = now + timedelta(seconds=item.frequency)
                 item.save()
 
                 logging.debug(data)
