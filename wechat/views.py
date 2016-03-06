@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 __author__ = 'yijingping'
 import requests
+import json
 from io import StringIO
 from lxml import etree
 from django.contrib import messages
@@ -10,6 +11,9 @@ from django.template import RequestContext
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
+from wechatspider.util import get_redis
+from wechat.constants import KIND_HISTORY
 from .forms import WechatForm, HistoryForm, WechatConfigForm
 from .models import Wechat, Topic
 
@@ -67,8 +71,23 @@ def edit(request, id_):
         })
         return render_to_response('wechat/edit.html', {}, context_instance=RequestContext(request, context))
     elif request.method == 'POST':
+        origin_history_start, origin_history_end = wechat.history_start, wechat.history_end
         form = WechatConfigForm(request.POST, instance=wechat)
         if form.is_valid():
+            if (form.cleaned_data['history_start'] != origin_history_start
+                or form.cleaned_data['history_end'] != origin_history_end):
+                print '###############changed'
+                data = {
+                    'kind': KIND_HISTORY,
+                    'wechat_id': wechat.id,
+                    'wechatid': wechat.wechatid,
+                    'history_start': '%s' % wechat.history_start,
+                    'history_end': '%s' % wechat.history_end
+                }
+                r = get_redis()
+                r.lpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))
+            else:
+                print '#################not changed'
             form.save()
             messages.success(request, '保存成功.')
             return redirect(reverse('wechat.edit', kwargs={"id_": id_}))
@@ -131,6 +150,15 @@ def history(request):
         wechat.history_start = form.cleaned_data['history_start']
         wechat.history_end = form.cleaned_data['history_end']
         wechat.save()
+        data = {
+            'kind': KIND_HISTORY,
+            'wechat_id': wechat.id,
+            'wechatid': wechat.wechatid,
+            'history_start': '%s' % wechat.history_start,
+            'history_end': '%s' % wechat.history_end
+        }
+        r = get_redis()
+        r.lpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))
         return HttpResponse("提交成功, 爬虫正在后台努力工作中...")
     else:
         return HttpResponse('设置失败,请重试. 错误: %s' % form.errors)

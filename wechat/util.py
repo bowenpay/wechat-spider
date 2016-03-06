@@ -56,3 +56,4 @@ def check_proxy(host, port):
 
     # Return False if no exceptions, proxy_detected=True if proxy detected
     return (False, proxy_detected, time_diff)
+

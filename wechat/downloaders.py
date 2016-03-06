@@ -3,6 +3,8 @@ __author__ = 'yijingping'
 import time
 import platform
 import requests
+from datetime import datetime, timedelta
+from dateutil.parser import parse
 from random import sample, randint
 from pyvirtualdisplay import Display
 from selenium import webdriver
@@ -107,6 +109,7 @@ class SeleniumDownloaderBackend(object):
         element_querybox.send_keys(wechatid, Keys.ARROW_DOWN)
         element_search_btn = browser.find_element_by_xpath("//input[@value='搜公众号']")
         element_search_btn.click()
+        time.sleep(2)
         print browser.title
 
     def visit_wechat_topic_list(self):
@@ -114,9 +117,47 @@ class SeleniumDownloaderBackend(object):
         # 找到搜索列表第一个微信号, 点击打开新窗口
         element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h3")
         element_wechat.click()
+        time.sleep(2)
         # 切到当前的文章列表页窗口
         new_handler = browser.window_handles[-1]
         browser.switch_to.window(new_handler)
+        time.sleep(2)
+
+    def get_publish_time(self, txt):
+        if '小时前' in txt:
+            res = datetime.now()
+        elif '天前' in txt:
+            days = int(txt.split('天前')[0])
+            res = datetime.now() - timedelta(days=days)
+        else:
+            try:
+                res = parse(txt)
+            except Exception as e:
+                logger.exception(e)
+                res = datetime.now()
+        return res
+
+    def visit_wechat_history_topic_list(self, history_start):
+        browser = self.browser
+        start_time = parse(history_start)
+        # 找到搜索列表第一个微信号, 点击打开新窗口
+        element_publish_times = browser.find_elements_by_xpath("//div[@class='s-p']")
+        if len(element_publish_times) > 1:
+            element_publish_time = element_publish_times[-1]
+        else:
+            return
+
+        txt_publish_time = element_publish_time.text.strip()
+        publish_time = self.get_publish_time(txt_publish_time)
+        if publish_time > start_time:
+            element_wxmore = browser.find_element_by_id("wxmore")
+            if element_wxmore.is_displayed():
+                element_wxmore.click()
+                time.sleep(2)
+                self.visit_wechat_history_topic_list(history_start)
+            else:
+                return
+
 
     def download_wechat_topics(self, wechat_id):
         res = []
@@ -159,11 +200,27 @@ class SeleniumDownloaderBackend(object):
         browser.delete_all_cookies()
 
 
-    def download_wechats(self, wechat_id, wechatid):
+    def download_wechat(self, data):
+        wechat_id, wechatid = data['wechat_id'], data['wechatid']
         topics = []
         try:
             self.visit_wechat_index(wechatid)
             self.visit_wechat_topic_list()
+            topics = self.download_wechat_topics(wechat_id)
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            self.clean_wechat_browser()
+
+        return topics
+
+    def download_wechat_history(self, data):
+        wechat_id, wechatid, history_start, history_end = data['wechat_id'], data['wechatid'], data['history_start'], data['history_end']
+        topics = []
+        try:
+            self.visit_wechat_index(wechatid)
+            self.visit_wechat_topic_list()
+            self.visit_wechat_history_topic_list(history_start)
             topics = self.download_wechat_topics(wechat_id)
         except Exception as e:
             logger.exception(e)

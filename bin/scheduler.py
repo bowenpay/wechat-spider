@@ -18,6 +18,7 @@ logger = logging.getLogger()
 from datetime import datetime, timedelta
 import time
 from wechatspider.util import get_redis
+from wechat.constants import KIND_NORMAL
 
 
 class Scheduler(object):
@@ -32,6 +33,7 @@ class Scheduler(object):
             wechats = Wechat.objects.filter(frequency__gt=0, next_crawl_time__lt=now).order_by('-id')
             for item in wechats:
                 data = {
+                    'kind': KIND_NORMAL,
                     'wechat_id': item.id,
                     'wechatid': item.wechatid
                 }

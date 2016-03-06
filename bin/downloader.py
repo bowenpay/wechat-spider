@@ -16,7 +16,7 @@ from django.conf import settings
 from wechatspider.util import get_redis
 from wechat.proxies import MysqlProxyBackend
 from wechat.downloaders import SeleniumDownloaderBackend
-
+from wechat.constants import KIND_HISTORY
 import logging
 logger = logging.getLogger()
 
@@ -63,8 +63,10 @@ class Downloader(object):
                 else:
                     print '# 未被限制,可以下载'
                     browser = SeleniumDownloaderBackend(proxy=proxy)
-
-                    res = browser.download_wechats(data["wechat_id"], data["wechatid"])
+                    if data.get('kind') == KIND_HISTORY:
+                        res = browser.download_wechat_history(data)
+                    else:
+                        res = browser.download_wechat(data)
                     for item in res:
                         item_data = {
                             "wechat_id": data["wechat_id"],
