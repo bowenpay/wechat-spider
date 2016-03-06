@@ -172,14 +172,29 @@ class SeleniumDownloaderBackend(object):
             try:
                 Topic.objects.get(uniqueid=uniqueid)
             except Topic.DoesNotExist:
-                links.append(item.get_attribute('href'))
-        for link in links:
+                links.append((title, item.get_attribute('href')))
+                logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
+        for title,link in links[:1]:
             # 可以访问了
             browser.get(link)
+            time.sleep(2)
+            js = """
+                var imgs = document.getElementsByTagName('img');
+
+                for(var i = 0; i < imgs.length; i++) {
+                  var dataSrc = imgs[i].getAttribute('data-src');
+                  if (dataSrc){
+                    imgs[i].setAttribute('src', dataSrc);
+                  }
+                }
+                return document.documentElement.innerHTML;
+            """
+            body = browser.execute_script(js)
             res.append({
                 'url': browser.current_url,
-                'body': browser.page_source,
-                'avatar': ''
+                'body': body,
+                'avatar': '',
+                'title': title
             })
             time.sleep(randint(10, 20))
         return res

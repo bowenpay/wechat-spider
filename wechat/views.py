@@ -16,6 +16,7 @@ from wechatspider.util import get_redis
 from wechat.constants import KIND_HISTORY
 from .forms import WechatForm, HistoryForm, WechatConfigForm
 from .models import Wechat, Topic
+from .extractors import download_to_oss
 
 
 def index(request):
@@ -52,7 +53,9 @@ def add(request):
     elif request.method == 'POST':
         form = WechatForm(request.POST)
         if form.is_valid():
-            form.save()
+            obj = form.save(commit=False)
+            obj.avatar = download_to_oss(obj.avatar, settings.OSS2_CONFIG["IMAGES_PATH"])
+            obj.save()
             return HttpResponse("配置保存成功, 爬虫正在后台努力工作中...")
         else:
             return HttpResponse('添加失败,请重试. 错误: %s' % form.errors)

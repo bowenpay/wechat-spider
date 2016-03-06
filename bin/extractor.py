@@ -28,32 +28,11 @@ DETAIL_RULES = [
     ]
   },
   {
-    "key":"title",
-    "rules":[
-      {
-        "kind":"xpath",
-        "data":"//h2[@id='activity-name']/text()"
-      },
-      {
-        "kind":"python",
-        "data":"out_val=' '.join([item.strip() for item in in_val])"
-      }
-    ]
-  },
-  {
     "key":"content",
     "rules":[
       {
-        "kind":"xpath",
-        "data":"//div[@id='js_content']"
-      },
-      {
-        "kind":"python",
-        "data":"from lxml import html;out_val=''.join([html.tostring(child, encoding='unicode') for child in in_val])"
-      },
-      {
-        "kind":"python",
-        "data":"import re;out_val=re.subn(r'<(script).*?</\\1>(?s)', '', in_val)[0];"
+        "kind":"image",
+        "data":""
       }
     ]
   },
@@ -101,6 +80,7 @@ class Extractor(object):
         result = {
             "wechat_id": data["wechat_id"],
             "url": data["url"],
+            "title": data["title"],
             "source": data["body"],
             "avatar": data["avatar"]
         }

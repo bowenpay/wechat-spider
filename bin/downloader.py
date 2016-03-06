@@ -70,6 +70,7 @@ class Downloader(object):
                     for item in res:
                         item_data = {
                             "wechat_id": data["wechat_id"],
+                            "title": item["title"],
                             "url": item["url"],
                             "body": item["body"],
                             "avatar": item["avatar"],
