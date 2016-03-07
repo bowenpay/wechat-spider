@@ -16,7 +16,7 @@ hr {
     box-shadow: inset 0px 1px 0px 0px rgba(255,255,255,0.15);
 }
 .wechat-item {
-    max-width: 60%;
+    max-width: 80%;
 }
 
 .wechat-item .intro {
@@ -28,6 +28,10 @@ hr {
 .wechat-item.selected {
     background-color: #F5F5F5;
 }
+.wechat-item .wechat-qrcode {
+    width: 70px;
+    height: 70px;
+}
 .wechat-id{
     font-size: x-small;
     font-weight: 400;
@@ -36,7 +40,6 @@ hr {
 
 .wechat-frequency {
     text-align: center;
-    width: 70px !important;
 }
 
 .avatar-list{
@@ -56,7 +59,7 @@ hr {
     width: auto;
 }
 .simple_form .submit-btn{
-    margin-left: 5px;
+    margin-left: 50px;
 }
 #wechat-edit-form label {
     width: 67px;

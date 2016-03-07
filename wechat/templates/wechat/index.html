@@ -1,6 +1,50 @@
 {% extends "base.html" %}
 {% load paginator %}
+{% load staticfiles %}
+
 {% block main-content %}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+          添加公众号
+      </div>
+      <div class="panel-body">
+        <form id="search-form" class="form-inline simple_form" action="{% url 'wechat.search' %}" >
+          <div class="form-group">
+              <lable for="id_query">公&nbsp;&nbsp;众&nbsp;&nbsp;号：</lable>
+              <input id="id_query" type="text" class="form-control" style="text-align: center;" name="query" required placeholder="逻辑思维 / LJSW888">
+          </div>
+          <button type="submit" class="btn btn-default">
+            <i class="fa fa-search"></i>
+          </button>
+        </form>
+        <div class="form-group" id="search-content" style="margin-top:10px;">
+
+        </div>
+
+        <form id="wechat-add-form" class="form-inline simple_form" action="{% url 'wechat.add' %}" method="post" >
+          {% csrf_token %}
+          <input type="hidden" name="name" required>
+          <input type="hidden" name="wechatid" required>
+          <input type="hidden" name="avatar" required>
+          <input type="hidden" name="qrcode" required>
+          <input type="hidden" name="intro">
+
+          <div class="form-group">
+              <lable for="id_frequency">爬取频率：</lable>
+              <input id="id_frequency" type="number" class="form-control wechat-frequency" name="frequency" required placeholder="10" value="10">
+              <span>&nbsp;分钟</span>
+          </div>
+          <button type="submit" class="btn btn-primary submit-btn">添加</button>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
 <div class="row">
   <div class="col-md-12">
 
@@ -25,9 +69,9 @@
           <tbody>
           {% for item in wechats %}
             <tr>
-              <td><a href="{% url 'wechat.edit' item.id %}">{{ item.id}}</td>
+              <td><a href="{% url 'wechat.edit' item.id %}">{{ item.id}}</a></td>
               <td><img src="{{ item.avatar}}" class="avatar-list"></td>
-              <td><h5><a target="_blank" href="{{ item.url }}">{{ item.name}}</a></h5> <span class="wechat-id">{{ item.wechatid}}</span></td>
+              <td><h5><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.name}}</a></h5> <span class="wechat-id">{{ item.wechatid}}</span></td>
               <td>{{ item.frequency}}</td>
               <td>{{ item.next_crawl_time}}</td>
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.last_day_topics_count}}</a></td>
@@ -47,4 +91,35 @@
 
   </div>
 </div>
+{% endblock %}
+
+{% block footer-js %}
+<script src="{% static 'jquery.form.js' %}"></script>
+<script src="{% static 'bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js' %}"></script>
+
+<script>
+$(document).ready(function() {
+    // 微信搜索
+    $('#search-form').ajaxForm(function(data) {
+        //alert(data);
+        $('#search-content').hide().html(data).show('slow');
+    });
+
+});
+var wechatInfo = {};
+function selectWechat(node, name, wechatid, avatar, qrcode, intro){
+  // 保存信息
+  $("input[name='name']").val(name);
+  $("input[name='wechatid']").val(wechatid);
+  $("input[name='avatar']").val(avatar);
+  $("input[name='qrcode']").val(qrcode);
+  $("input[name='intro']").val(intro);
+  // 显示选中状态
+  $(node).addClass('selected');
+  // 隐藏兄弟节点
+  $(node).prevAll().hide('slow');
+  $(node).nextAll().hide('slow');
+}
+</script>
 {% endblock %}

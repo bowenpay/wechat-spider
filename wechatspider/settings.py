@@ -105,6 +105,12 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
+# messages
+from django.contrib import messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}
+
 # logging config
 LOGGING = {
     'version': 1,

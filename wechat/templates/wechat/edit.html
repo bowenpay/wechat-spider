@@ -1,9 +1,5 @@
 {% extends "base.html" %}
-{% load staticfiles %}
 
-{% block header_css %}
-<link href="{% static 'bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}" rel="stylesheet">
-{% endblock %}
 {% block main-content %}
       <div class="row">
         <div class="col-md-12">
@@ -26,6 +22,9 @@
                       {{wechat.intro}}
                       </p>
                     </div>
+                    <div class="media-right">
+                      <img class="media-object wechat-qrcode" src="{{ wechat.qrcode }}" alt="...">
+                    </div>
                   </div>
                   <hr />
                 </div>
@@ -34,14 +33,6 @@
                     <label for="id_frequency" class="control-label">爬取频率</label>
                     <input id="id_frequency" type="number" class="form-control wechat-frequency" name="frequency" required placeholder="{{ wechat.frequency }}" value="{{ form.frequency.value }}">
                     <span>分钟</span>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="input-group">
-                    <label for="id_frequency" class="control-label">时间段</label>
-                    <input id="start" type="text" class="form-control" name="history_start" value="{{ form.history_start.value | date:'Y-m-d' }}" required>
-                    <span> 至 </span>
-                    <input id="end" type="text" class="form-control" name="history_end" value="{{ form.history_end.value | date:'Y-m-d' }}" required>
                     <button type="submit" class="btn btn-primary" style="margin-left: 20px;">保存</button>
                   </div>
                 </div>
@@ -52,20 +43,4 @@
 
         </div>
       </div>
-{% endblock %}
-
-{% block footer-js %}
-<script src="{% static 'jquery.form.js' %}"></script>
-<script src="{% static 'bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
-<script src="{% static 'bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js' %}"></script>
-
-<script>
-$(document).ready(function() {
-    // 历史时间段
-    $.fn.datepicker.defaults.format = "yyyy-mm-dd";
-    $.fn.datepicker.defaults.language = "zh-CN";
-    $('#start').datepicker({format: "yyyy-mm-dd", startDate: '-30d', endDate:'0d'});
-    $('#end').datepicker({format:"yyyy-mm-dd", startDate: '-30d', endDate:'0d'});
-});
-</script>
 {% endblock %}

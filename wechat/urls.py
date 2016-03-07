@@ -10,6 +10,6 @@ urlpatterns = [
     url(r'^(?P<id_>\d+)/edit/$', views.edit, name="wechat.edit"),
     url(r'^(?P<id_>\d+)/topics/$', views.wechat_topics, name="wechat.wechat_topics"),
     url(r'^topic/(?P<id_>\d+)/$', views.topic_detail, name="wechat.topic_detail"),
+    url(r'^topic/$', views.topic_list, name="wechat.topic_list"),
     url(r'^search/$', views.search, name="wechat.search"),
-    url(r'^history/$', views.history, name="wechat.history"),
 ]

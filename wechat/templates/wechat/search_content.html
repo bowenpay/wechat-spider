@@ -1,14 +1,17 @@
 {% load utils %}
 {% for item in wechats %}
-<div class="media wechat-item" onclick='selectWechat(this, {{ item.name | as_json }}, {{ item.wechatid  | as_json }}, {{ item.avatar | as_json }}, {{ item.intro | as_json }}, {{ item.url | as_json }})'>
+<div class="media wechat-item" onclick='selectWechat(this, {{ item.name | as_json }}, {{ item.wechatid  | as_json }}, {{ item.avatar | as_json }}, {{ item.qrcode | as_json }}, {{ item.intro | as_json }})'>
   <div class="media-left">
       <img class="media-object avatar-list" src="{{ item.avatar }}" alt="...">
   </div>
   <div class="media-body">
     <h5 class="media-heading">{{item.name}} <span class="wechat-id">微信号: {{item.wechatid}}</span></h5>
-    <p class="intro">
+    <p>
       {{item.intro}}
     </p>
+  </div>
+  <div class="media-right">
+    <img class="media-object wechat-qrcode" src="{{ item.qrcode }}" alt="...">
   </div>
 </div>
 {% endfor %}
