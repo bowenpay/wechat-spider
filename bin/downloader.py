@@ -62,21 +62,23 @@ class Downloader(object):
                     r.lpush(CRAWLER_CONFIG["downloader"], resp_data[1])
                 else:
                     print '# 未被限制,可以下载'
-                    browser = SeleniumDownloaderBackend(proxy=proxy)
-                    if data.get('kind') == KIND_HISTORY:
-                        res = browser.download_wechat_history(data)
-                    else:
-                        res = browser.download_wechat(data)
-                    for item in res:
+                    # 处理文章的函数,用于回调. 每下载一篇, 处理一篇
+                    def process_topic(topic):
                         item_data = {
                             "wechat_id": data["wechat_id"],
-                            "title": item["title"],
-                            "url": item["url"],
-                            "body": item["body"],
-                            "avatar": item["avatar"],
+                            "title": topic["title"],
+                            "url": topic["url"],
+                            "body": topic["body"],
+                            "avatar": topic["avatar"],
                         }
                         r.lpush(CRAWLER_CONFIG["extractor"], json.dumps(item_data))
                         logger.debug(item_data)
+
+                    browser = SeleniumDownloaderBackend(proxy=proxy)
+                    if data.get('kind') == KIND_HISTORY:
+                        res = browser.download_wechat_history(data, process_topic)
+                    else:
+                        res = browser.download_wechat(data, process_topic)
 
                     time.sleep(randint(20, 30))
             except Exception as e:

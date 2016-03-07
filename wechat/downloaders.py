@@ -158,9 +158,7 @@ class SeleniumDownloaderBackend(object):
             else:
                 return
 
-
-    def download_wechat_topics(self, wechat_id):
-        res = []
+    def download_wechat_topics(self, wechat_id, process_topic):
         browser = self.browser
         elems = browser.find_elements_by_xpath("//div[@class='txt-box']/h4/a")
         print '###############', elems
@@ -174,7 +172,7 @@ class SeleniumDownloaderBackend(object):
             except Topic.DoesNotExist:
                 links.append((title, item.get_attribute('href')))
                 logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
-        for title,link in links[:1]:
+        for title,link in links:
             # 可以访问了
             browser.get(link)
             time.sleep(2)
@@ -190,14 +188,13 @@ class SeleniumDownloaderBackend(object):
                 return document.documentElement.innerHTML;
             """
             body = browser.execute_script(js)
-            res.append({
+            process_topic({
                 'url': browser.current_url,
                 'body': body,
                 'avatar': '',
                 'title': title
             })
             time.sleep(randint(10, 20))
-        return res
 
     def clean_wechat_browser(self):
         browser = self.browser
@@ -215,13 +212,13 @@ class SeleniumDownloaderBackend(object):
         browser.delete_all_cookies()
 
 
-    def download_wechat(self, data):
+    def download_wechat(self, data, process_topic):
         wechat_id, wechatid = data['wechat_id'], data['wechatid']
         topics = []
         try:
             self.visit_wechat_index(wechatid)
             self.visit_wechat_topic_list()
-            topics = self.download_wechat_topics(wechat_id)
+            self.download_wechat_topics(wechat_id, process_topic)
         except Exception as e:
             logger.exception(e)
         finally:
@@ -229,17 +226,15 @@ class SeleniumDownloaderBackend(object):
 
         return topics
 
-    def download_wechat_history(self, data):
+    def download_wechat_history(self, data, process_topic):
         wechat_id, wechatid, history_start, history_end = data['wechat_id'], data['wechatid'], data['history_start'], data['history_end']
         topics = []
         try:
             self.visit_wechat_index(wechatid)
             self.visit_wechat_topic_list()
             self.visit_wechat_history_topic_list(history_start)
-            topics = self.download_wechat_topics(wechat_id)
+            self.download_wechat_topics(wechat_id, process_topic)
         except Exception as e:
             logger.exception(e)
         finally:
             self.clean_wechat_browser()
-
-        return topics
