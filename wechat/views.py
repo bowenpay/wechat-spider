@@ -47,6 +47,7 @@ def add(request):
         if form.is_valid():
             obj = form.save(commit=False)
             obj.avatar = download_to_oss(obj.avatar, settings.OSS2_CONFIG["IMAGES_PATH"])
+            obj.qrcode = download_to_oss(obj.qrcode, settings.OSS2_CONFIG["IMAGES_PATH"])
             obj.save()
             messages.success(request, '保存成功.')
             return redirect(reverse('wechat.index'))

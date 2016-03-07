@@ -24,6 +24,10 @@ DETAIL_RULES = [
       {
         "kind":"python",
         "data":"out_val=data['avatar'];"
+      },
+      {
+        "kind":"image",
+        "data":""
       }
     ]
   },
@@ -40,16 +44,12 @@ DETAIL_RULES = [
     "key":"publish_time",
     "rules":[
       {
-        "kind":"xpath",
-        "data":"//em[@id='post-date']/text()"
+        "kind":"python",
+        "data":"from datetime import datetime;out_val=datetime.fromtimestamp(int(data['source'].split('var ct = \"')[1].split('\"')[0]));"
       },
       {
         "kind":"python",
-        "data":"from datetime import datetime;date_str=in_val[0].strip().split()[0];out_val=datetime.strptime(date_str, '%Y-%m-%d')"
-      },
-      {
-        "kind":"python",
-        "data":"from datetime import datetime;now=datetime.now();out_val = str(in_val.replace(microsecond=now.microsecond) if isinstance(in_val, datetime) else datetime.now())"
+        "data":"from datetime import datetime;now=datetime.now();out_val = str(in_val if isinstance(in_val, datetime) else datetime.now());"
       }
     ]
   }

@@ -41,7 +41,10 @@ hr {
 .wechat-frequency {
     text-align: center;
 }
-
+.topic-avatar {
+    width: 70px;
+    height: 70px;
+}
 .avatar-list{
     width: 57px;
     height: 57px;

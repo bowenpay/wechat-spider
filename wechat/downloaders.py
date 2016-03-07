@@ -161,18 +161,20 @@ class SeleniumDownloaderBackend(object):
     def download_wechat_topics(self, wechat_id, process_topic):
         browser = self.browser
         elems = browser.find_elements_by_xpath("//div[@class='txt-box']/h4/a")
+        elems_avatars = browser.find_elements_by_xpath("//div[@class='img_box2']//img")
+        avatars = [item.get_attribute('src').split('url=')[1] for item in elems_avatars]
         print '###############', elems
         links = []
-        for item in elems:
+        for idx, item in enumerate(elems):
             title = item.text.strip()
             print title
             uniqueid = get_uniqueid('%s:%s' % (wechat_id, title))
             try:
                 Topic.objects.get(uniqueid=uniqueid)
             except Topic.DoesNotExist:
-                links.append((title, item.get_attribute('href')))
+                links.append((title, item.get_attribute('href'), avatars[idx]))
                 logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
-        for title,link in links:
+        for title, link, avatar in links:
             # 可以访问了
             browser.get(link)
             time.sleep(2)
@@ -196,7 +198,7 @@ class SeleniumDownloaderBackend(object):
                 process_topic({
                     'url': browser.current_url,
                     'body': body,
-                    'avatar': '',
+                    'avatar': avatar,
                     'title': title
                 })
                 time.sleep(randint(10, 20))
