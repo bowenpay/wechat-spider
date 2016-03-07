@@ -176,25 +176,30 @@ class SeleniumDownloaderBackend(object):
             # 可以访问了
             browser.get(link)
             time.sleep(2)
-            js = """
-                var imgs = document.getElementsByTagName('img');
 
-                for(var i = 0; i < imgs.length; i++) {
-                  var dataSrc = imgs[i].getAttribute('data-src');
-                  if (dataSrc){
-                    imgs[i].setAttribute('src', dataSrc);
-                  }
-                }
-                return document.documentElement.innerHTML;
-            """
-            body = browser.execute_script(js)
-            process_topic({
-                'url': browser.current_url,
-                'body': body,
-                'avatar': '',
-                'title': title
-            })
-            time.sleep(randint(10, 20))
+            if 'antispider' in browser.current_url:
+                """被检测出爬虫了"""
+                time.sleep(randint(60, 120))
+            else:
+                js = """
+                    var imgs = document.getElementsByTagName('img');
+
+                    for(var i = 0; i < imgs.length; i++) {
+                      var dataSrc = imgs[i].getAttribute('data-src');
+                      if (dataSrc){
+                        imgs[i].setAttribute('src', dataSrc);
+                      }
+                    }
+                    return document.documentElement.innerHTML;
+                """
+                body = browser.execute_script(js)
+                process_topic({
+                    'url': browser.current_url,
+                    'body': body,
+                    'avatar': '',
+                    'title': title
+                })
+                time.sleep(randint(10, 20))
 
     def clean_wechat_browser(self):
         browser = self.browser
