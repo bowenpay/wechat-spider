@@ -71,9 +71,11 @@
             <tr>
               <td><a href="{% url 'wechat.edit' item.id %}">{{ item.id}}</a></td>
               <td><img src="{{ item.avatar}}" class="avatar-list"></td>
-              <td><h5><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.name}}</a></h5> <span class="wechat-id">{{ item.wechatid}}</span></td>
+              <td><h5><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.name}}</a></h5>
+                <span class="wechat-id"><a target="_blank" href="http://weixin.sogou.com/weixin?type=1&query={{ item.wechatid }}&ie=utf8">{{ item.wechatid }}</a></span>
+              </td>
               <td>{{ item.frequency}}</td>
-              <td>{{ item.next_crawl_time}}</td>
+              <td>{% if item.frequency > 0 %}{{ item.next_crawl_time}}{% else %}N/A{% endif %}</td>
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.last_day_topics_count}}</a></td>
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.last_week_topics_count}}</a></td>
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.total_topics_count}}</a></td>
