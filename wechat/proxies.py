@@ -4,7 +4,7 @@ from .models import Proxy
 
 class MysqlProxyBackend(object):
     def __init__(self):
-        proxy = Proxy.objects.order_by('?').first()
+        proxy = Proxy.objects.filter(status=Proxy.STATUS_SUCCESS).order_by('?').first()
         if proxy:
             self.user = proxy.user
             self.password = proxy.password

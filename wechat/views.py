@@ -15,7 +15,7 @@ from django.conf import settings
 from wechat.constants import KIND_DETAIL
 from wechatspider.util import get_redis
 from .forms import WechatForm, WechatConfigForm
-from .models import Wechat, Topic
+from .models import Wechat, Topic, Proxy
 from .extractors import download_to_oss
 
 
@@ -170,10 +170,23 @@ def search(request):
 
 
 def searcy_wechat(query):
-    rsp = requests.get("http://weixin.sogou.com/weixin", params={"type": 1, "query": query})
+    p = Proxy.objects.filter(status=Proxy.STATUS_SUCCESS).order_by('?').first()
+    if p:
+        proxies = {
+            'http': 'http://%s:%s' % (p.host, p.port)
+        }
+    else:
+        proxies = {}
+    headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36'
+    }
+    rsp = requests.get("http://weixin.sogou.com/weixin",
+                       params={"type": 1, "query": query},
+                       proxies=proxies, headers=headers
+    )
     rsp.close()
     rsp.encoding = rsp.apparent_encoding
-
+    #print rsp.content
     htmlparser = etree.HTMLParser()
     tree = etree.parse(StringIO(rsp.text), htmlparser)
     nodes = tree.xpath('//div[contains(@class,"wx-rb")]')
