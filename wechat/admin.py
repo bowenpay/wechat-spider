@@ -15,7 +15,7 @@ admin.site.register(Topic, TopicAdmin)
 
 
 class ProxyAdmin(admin.ModelAdmin):
-    list_display = ('host', 'port', 'speed', 'status', 'retry')
-    list_filter = ('status',)
+    list_display = ('kind', 'host', 'port', 'speed', 'status', 'retry')
+    list_filter = ('kind', 'status')
 
 admin.site.register(Proxy, ProxyAdmin)

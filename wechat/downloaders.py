@@ -43,11 +43,7 @@ class SeleniumDownloaderBackend(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         # 关闭浏览器
         try:
-            browser = self.browser
-            all_handlers = browser.window_handles[:]
-            for handler in all_handlers:
-                browser.switch_to.window(handler)
-                browser.close()
+            self.browser and self.browser.quit()
         except Exception as e:
             logging.exception(e)
         # 关闭界面
@@ -94,7 +90,7 @@ class SeleniumDownloaderBackend(object):
         element_querybox.send_keys(wechatid, Keys.ARROW_DOWN)
         element_search_btn = browser.find_element_by_xpath("//input[@value='搜公众号']")
         element_search_btn.click()
-        time.sleep(2)
+        time.sleep(10)
         print browser.title
 
     def visit_wechat_topic_list(self):
@@ -102,11 +98,11 @@ class SeleniumDownloaderBackend(object):
         # 找到搜索列表第一个微信号, 点击打开新窗口
         element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h3")
         element_wechat.click()
-        time.sleep(2)
+        time.sleep(10)
         # 切到当前的文章列表页窗口
         new_handler = browser.window_handles[-1]
         browser.switch_to.window(new_handler)
-        time.sleep(2)
+        time.sleep(10)
 
     def get_publish_time(self, txt):
         if '小时前' in txt:
@@ -138,7 +134,7 @@ class SeleniumDownloaderBackend(object):
             element_wxmore = browser.find_element_by_id("wxmore")
             if element_wxmore.is_displayed():
                 element_wxmore.click()
-                time.sleep(2)
+                time.sleep(10)
                 self.visit_wechat_history_topic_list(history_start)
             else:
                 return
@@ -162,7 +158,7 @@ class SeleniumDownloaderBackend(object):
         for title, link, avatar in links:
             # 可以访问了
             browser.get(link)
-            time.sleep(2)
+            time.sleep(10)
 
             if 'antispider' in browser.current_url:
                 """被检测出爬虫了"""
@@ -222,7 +218,7 @@ class SeleniumDownloaderBackend(object):
         browser = self.browser
         try:
             browser.get(url)
-            time.sleep(2)
+            time.sleep(10)
 
             if 'antispider' in browser.current_url:
                 """被检测出爬虫了"""
