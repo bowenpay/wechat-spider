@@ -43,7 +43,9 @@ class SeleniumDownloaderBackend(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         # 关闭浏览器
         try:
-            self.browser and self.browser.quit()
+            if self.browser:
+                self.browser.delete_all_cookies()
+                self.browser.quit()
         except Exception as e:
             logging.exception(e)
         # 关闭界面
