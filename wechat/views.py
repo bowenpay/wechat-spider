@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 __author__ = 'yijingping'
+import json
 import requests
 from io import StringIO
 from lxml import etree
@@ -10,6 +11,8 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
+from wechat.constants import KIND_DETAIL
+from wechatspider.util import get_redis
 from .forms import WechatForm, WechatConfigForm
 from .models import Wechat, Topic
 from .extractors import download_to_oss
@@ -139,6 +142,22 @@ def topic_detail(request, id_):
     return render_to_response('wechat/topic_detail.html', {}, context_instance=RequestContext(request, {
         "topic": topic
     }))
+
+
+def topic_add(request):
+    url = request.POST.get('url', '')
+    if url.startswith('http://mp.weixin.qq.com/'):
+        data = {
+            'kind': KIND_DETAIL,
+            'url': url
+        }
+
+        r = get_redis()
+        r.lpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))
+        messages.success(request, '链接已经提交给爬虫,稍后查看爬取结果.')
+    else:
+        messages.error(request, 'url 错误, 添加失败')
+    return redirect(reverse('wechat.topic_list'))
 
 
 

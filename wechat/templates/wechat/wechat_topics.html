@@ -29,6 +29,7 @@
         <thead>
           <tr>
             <th>#ID</th>
+            <th>头像</th>
             <th>标题</th>
             <th>原文链接</th>
             <th>时间</th>
@@ -38,6 +39,7 @@
         {% for item in topics %}
           <tr>
             <td>{{ item.id}}</td>
+              <td><img src="{{ item.avatar}}" class="topic-avatar"> </td>
             <td><a target="_blank" href="{% url 'wechat.topic_detail' item.id %}">{{ item.title}}</a></td>
             <td><a target="_blank" href="{{ item.url }}">{{ item.url | truncatechars:40 }}</a></td>
             <td>{{ item.publish_time}}</td>

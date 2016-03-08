@@ -16,7 +16,7 @@ from django.conf import settings
 from wechatspider.util import get_redis
 from wechat.proxies import MysqlProxyBackend
 from wechat.downloaders import SeleniumDownloaderBackend
-from wechat.constants import KIND_HISTORY
+from wechat.constants import KIND_HISTORY, KIND_DETAIL
 import logging
 logger = logging.getLogger()
 
@@ -64,18 +64,18 @@ class Downloader(object):
                     print '# 未被限制,可以下载'
                     # 处理文章的函数,用于回调. 每下载一篇, 处理一篇
                     def process_topic(topic):
-                        item_data = {
-                            "wechat_id": data["wechat_id"],
-                            "title": topic["title"],
-                            "url": topic["url"],
-                            "body": topic["body"],
-                            "avatar": topic["avatar"],
-                        }
+                        if topic.get('kind', None) == KIND_DETAIL:
+                            item_data = topic
+                        else:
+                            item_data = topic
+                            item_data["wechat_id"] = data["wechat_id"]
                         r.lpush(CRAWLER_CONFIG["extractor"], json.dumps(item_data))
                         logger.debug(item_data)
 
                     browser = SeleniumDownloaderBackend(proxy=proxy)
-                    if data.get('kind') == KIND_HISTORY:
+                    if data.get('kind') == KIND_DETAIL:
+                        res = browser.download_wechat_topic_detail(data, process_topic)
+                    elif data.get('kind') == KIND_HISTORY:
                         res = browser.download_wechat_history(data, process_topic)
                     else:
                         res = browser.download_wechat(data, process_topic)

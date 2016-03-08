@@ -11,6 +11,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from wechatspider.util import get_uniqueid
 from wechat.models import Topic
+from wechat.constants import KIND_HISTORY, KIND_DETAIL
 
 import logging
 logger = logging.getLogger()
@@ -220,8 +221,9 @@ class SeleniumDownloaderBackend(object):
 
 
     def download_wechat(self, data, process_topic):
+        """ 爬取最新文章
+        """
         wechat_id, wechatid = data['wechat_id'], data['wechatid']
-        topics = []
         try:
             self.visit_wechat_index(wechatid)
             self.visit_wechat_topic_list()
@@ -231,9 +233,9 @@ class SeleniumDownloaderBackend(object):
         finally:
             self.clean_wechat_browser()
 
-        return topics
-
     def download_wechat_history(self, data, process_topic):
+        """ 爬取历史文章
+        """
         wechat_id, wechatid, history_start, history_end = data['wechat_id'], data['wechatid'], data['history_start'], data['history_end']
         topics = []
         try:
@@ -241,6 +243,45 @@ class SeleniumDownloaderBackend(object):
             self.visit_wechat_topic_list()
             self.visit_wechat_history_topic_list(history_start)
             self.download_wechat_topics(wechat_id, process_topic)
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            self.clean_wechat_browser()
+
+    def download_wechat_topic_detail(self, data, process_topic):
+        """ 根据url爬取文章的详情页
+        """
+        url = data['url']
+        browser = self.browser
+        try:
+            browser.get(url)
+            time.sleep(2)
+
+            if 'antispider' in browser.current_url:
+                """被检测出爬虫了"""
+                time.sleep(randint(60, 120))
+            else:
+                js = """
+                    var imgs = document.getElementsByTagName('img');
+
+                    for(var i = 0; i < imgs.length; i++) {
+                      var dataSrc = imgs[i].getAttribute('data-src');
+                      if (dataSrc){
+                        imgs[i].setAttribute('src', dataSrc);
+                      }
+                    }
+                    return document.documentElement.innerHTML;
+                """
+                body = browser.execute_script(js)
+                process_topic({
+                    'url': browser.current_url,
+                    'body': body,
+                    'avatar': '',
+                    'title': '',
+                    'kind': KIND_DETAIL
+                })
+                time.sleep(randint(10, 20))
+
         except Exception as e:
             logger.exception(e)
         finally:
