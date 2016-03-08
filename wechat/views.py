@@ -5,6 +5,7 @@ import json
 import requests
 from io import StringIO
 from lxml import etree
+from datetime import datetime
 from django.contrib import messages
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
@@ -74,7 +75,8 @@ def edit(request, id_):
     elif request.method == 'POST':
         form = WechatConfigForm(request.POST, instance=wechat)
         if form.is_valid():
-            form.save()
+            obj = form.save(commit=False)
+            obj.next_crawl_time = datetime.now()
             messages.success(request, '保存成功.')
             return redirect(reverse('wechat.edit', kwargs={"id_": id_}))
 

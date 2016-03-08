@@ -63,11 +63,7 @@ NORMAL_RULES = [
     "rules":[
       {
         "kind":"python",
-        "data":"from datetime import datetime;out_val=datetime.fromtimestamp(int(data['source'].split('var ct = \"')[1].split('\"')[0]));"
-      },
-      {
-        "kind":"python",
-        "data":"from datetime import datetime;now=datetime.now();out_val = str(in_val if isinstance(in_val, datetime) else datetime.now());"
+        "data":"from datetime import datetime;out_val = str(datetime.now());"
       }
     ]
   }
@@ -135,11 +131,7 @@ DETAIL_RULES = [
     "rules":[
       {
         "kind":"python",
-        "data":"from datetime import datetime;out_val=datetime.fromtimestamp(int(data['source'].split('var ct = \"')[1].split('\"')[0]));"
-      },
-      {
-        "kind":"python",
-        "data":"from datetime import datetime;now=datetime.now();out_val = str(in_val if isinstance(in_val, datetime) else datetime.now());"
+        "data":"from datetime import datetime;out_val = str(datetime.now());"
       }
     ]
   },
