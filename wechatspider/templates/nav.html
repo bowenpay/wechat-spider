@@ -17,6 +17,12 @@
         <li {% ifequal active_nav "wechats" %}class="active"{% endifequal %}><a href="{% url 'wechat.index' %}">公众号<span class="sr-only">(current)</span></a></li>
         <li {% ifequal active_nav "topics" %}class="active"{% endifequal %}><a href="{% url 'wechat.topic_list' %}">最新文章</a></li>
       </ul>
+      {% if downloader >= 0 %}
+      <ul class="nav navbar-nav navbar-right">
+          <li><a>等待下载: {{ downloader }}</a></li>
+          <li><a>禁爬数: {{ antispider }}</a></li>
+      </ul>
+      {% endif %}
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>

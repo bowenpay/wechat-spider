@@ -18,6 +18,8 @@ from .forms import WechatForm, WechatConfigForm
 from .models import Wechat, Topic, Proxy
 from .extractors import download_to_oss
 
+CRAWLER_CONFIG = settings.CRAWLER_CONFIG
+
 
 def index(request):
     context = {}
@@ -36,11 +38,16 @@ def index(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         _objs = paginator.page(paginator.num_pages)
 
+    r = get_redis()
     context.update({
         "active_nav": "wechats",
         "wechats": _objs,
-        "params": params
+        "params": params,
+        "downloader": r.llen(CRAWLER_CONFIG['downloader']) or 0,
+        "antispider": r.get(CRAWLER_CONFIG['antispider']) or 0
+
     })
+    print context
 
     return render_to_response('wechat/index.html', RequestContext(request, context))
 
@@ -77,6 +84,7 @@ def edit(request, id_):
         if form.is_valid():
             obj = form.save(commit=False)
             obj.next_crawl_time = datetime.now()
+            obj.save()
             messages.success(request, '保存成功.')
             return redirect(reverse('wechat.edit', kwargs={"id_": id_}))
 
@@ -170,13 +178,14 @@ def search(request):
 
 
 def searcy_wechat(query):
-    p = Proxy.objects.filter(status=Proxy.STATUS_SUCCESS).order_by('?').first()
+    p = Proxy.objects.filter(kind=Proxy.KIND_SEARCH, status=Proxy.STATUS_SUCCESS).order_by('?').first()
     if p:
         proxies = {
             'http': 'http://%s:%s' % (p.host, p.port)
         }
     else:
         proxies = {}
+    print proxies
     headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36'
     }

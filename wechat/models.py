@@ -65,6 +65,13 @@ class Proxy(models.Model):
         (STATUS_SUCCESS,'检测成功'),
         (STATUS_FAIL,'检测失败'),
     )
+    KIND_SEARCH = 0
+    KIND_DOWNLOAD = 1
+    KIND_CHOICES = (
+        (KIND_SEARCH, '搜索代理'),
+        (KIND_DOWNLOAD, '下载代理'),
+    )
+    kind = models.IntegerField(default=KIND_DOWNLOAD, choices=KIND_CHOICES, verbose_name="类型")
     user = models.CharField(default='', blank=True, max_length=100)
     password = models.CharField(default='', blank=True, max_length=100)
     host = models.CharField(max_length=100)

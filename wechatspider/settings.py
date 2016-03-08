@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Django settings for wechatspider project.
 
@@ -156,9 +158,10 @@ CRAWLER_CONFIG = {
     'downloader': 'unicrawler:downloader',
     'extractor': 'unicrawler:extractor',
     'processor': 'unicrawler:processor',
-    'global_limit_speed': 'unicrawler:global_limit_speed'
+    'global_limit_speed': 'unicrawler:global_limit_speed',
+    'antispider': 'unicrawler:antispider'
 }
-CRAWLER_GLOBAL_LIMIT_SPEED = 2
+CRAWLER_GLOBAL_LIMIT_SPEED = 20 * 1000 # 毫秒
 
 # aliyun oss2
 OSS2_CONFIG = {

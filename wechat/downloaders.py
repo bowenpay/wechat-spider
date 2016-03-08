@@ -2,82 +2,24 @@
 __author__ = 'yijingping'
 import time
 import platform
-import requests
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from random import sample, randint
 from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from wechatspider.util import get_uniqueid
+from selenium.webdriver.common.proxy import Proxy, ProxyType
+from wechatspider.util import get_uniqueid, get_redis
 from wechat.models import Topic
-from wechat.constants import KIND_HISTORY, KIND_DETAIL
+from wechat.constants import KIND_DETAIL
+from django.conf import settings
 
 import logging
 logger = logging.getLogger()
 
-
-class RequestsDownloaderBackend(object):
-    headers = [
-        {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36'
-        }
-    ]
-
-    def __init__(self, proxy=None):
-        self.proxy = proxy
-
-    def format_proxies(self):
-        p = self.proxy
-        if self.proxy:
-            if p.user:
-                data = 'http://%s:%s@%s:%s' % (p.user, p.password, p.host, p.port)
-            else:
-                data = 'http://%s:%s' % (p.host, p.port)
-            return {
-                "http": data
-            }
-        else:
-            return None
-
-    def download(self, url):
-        header = sample(self.headers, 1)[0]
-        proxies = self.format_proxies()
-        if isinstance(url, basestring):
-            rsp = requests.get(url, headers=header, proxies=proxies)
-            rsp.close()
-            rsp.encoding = rsp.apparent_encoding
-            return rsp.text
-        elif isinstance(url, dict):
-            link, method, data, data_type = url.get('url'), url.get('method'), url.get('data'), url.get('dataType')
-            req = {'GET': requests.get, 'POST': requests.post}.get(method)
-            rsp = req(link, data=data, headers=header, proxies=proxies)
-            rsp.close()
-            rsp.encoding = rsp.apparent_encoding
-            if data_type == 'json':
-                return rsp.json()
-            else:
-                return rsp.text
+CRAWLER_CONFIG = settings.CRAWLER_CONFIG
 
 
-class BrowserDownloaderBackend(object):
-    def download(self):
-        pass
-
-
-BROWSER = None
-
-
-def get_browser():
-    global BROWSER
-    if not BROWSER:
-        if platform.system() != 'Darwin':
-            # 不是mac系统, 启动窗口
-            display = Display(visible=0, size=(1024, 768))
-            display.start()
-        # 启动浏览器
-        BROWSER = webdriver.Firefox()
-    return BROWSER
 
 
 class SeleniumDownloaderBackend(object):
@@ -90,13 +32,55 @@ class SeleniumDownloaderBackend(object):
     def __init__(self, proxy=None):
         # 设置代理
         self.proxy = proxy
-        self.browser = get_browser()
 
-    def __del__(self):
-        pass
-        # 关闭浏览器,关闭窗口
-        #self.browser.close()
-        #self.display.stop()
+    def __enter__(self):
+        # 打开界面
+        self.display = self.get_display()
+        #  打开浏览器
+        self.browser = self.get_browser(self.proxy)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # 关闭浏览器
+        try:
+            browser = self.browser
+            all_handlers = browser.window_handles[:]
+            for handler in all_handlers:
+                browser.switch_to.window(handler)
+                browser.close()
+        except Exception as e:
+            logging.exception(e)
+        # 关闭界面
+        try:
+            # 关闭浏览器,关闭窗口
+            self.display and self.display.stop()
+        except Exception as e:
+            logging.exception(e)
+
+    def get_display(self):
+        if platform.system() != 'Darwin':
+            # 不是mac系统, 启动窗口
+            display = Display(visible=0, size=(1024, 768))
+            display.start()
+        else:
+            display = None
+        return display
+
+    def get_browser(self, proxy):
+        # 启动浏览器
+        if proxy.is_valid():
+            myProxy = '%s:%s' % (proxy.host, proxy.port)
+            ff_proxy = Proxy({
+                'proxyType': ProxyType.MANUAL,
+                'httpProxy': myProxy,
+                'ftpProxy': myProxy,
+                'sslProxy': myProxy,
+            'noProxy':''})
+            browser = webdriver.Firefox(proxy=ff_proxy)
+        else:
+            browser = webdriver.Firefox()
+
+        return browser
 
     def download(self, url):
         pass
@@ -182,6 +166,7 @@ class SeleniumDownloaderBackend(object):
 
             if 'antispider' in browser.current_url:
                 """被检测出爬虫了"""
+                self.log_antispider()
                 time.sleep(randint(60, 120))
             else:
                 js = """
@@ -204,22 +189,6 @@ class SeleniumDownloaderBackend(object):
                 })
                 time.sleep(randint(10, 20))
 
-    def clean_wechat_browser(self):
-        browser = self.browser
-        # 关闭其它窗口,只留一个
-        current_hander = browser.current_window_handle
-        all_handlers = browser.window_handles[:]
-
-        def close_window(handler):
-            browser.switch_to.window(handler)
-            browser.close()
-        if len(all_handlers) > 1:
-            map(close_window, filter(lambda item: item != current_hander, all_handlers))
-            browser.switch_to.window(current_hander)
-        # 清空cookie,恢复初始状态
-        browser.delete_all_cookies()
-
-
     def download_wechat(self, data, process_topic):
         """ 爬取最新文章
         """
@@ -230,8 +199,7 @@ class SeleniumDownloaderBackend(object):
             self.download_wechat_topics(wechat_id, process_topic)
         except Exception as e:
             logger.exception(e)
-        finally:
-            self.clean_wechat_browser()
+            self.log_antispider()
 
     def download_wechat_history(self, data, process_topic):
         """ 爬取历史文章
@@ -245,8 +213,7 @@ class SeleniumDownloaderBackend(object):
             self.download_wechat_topics(wechat_id, process_topic)
         except Exception as e:
             logger.exception(e)
-        finally:
-            self.clean_wechat_browser()
+            self.log_antispider()
 
     def download_wechat_topic_detail(self, data, process_topic):
         """ 根据url爬取文章的详情页
@@ -259,6 +226,7 @@ class SeleniumDownloaderBackend(object):
 
             if 'antispider' in browser.current_url:
                 """被检测出爬虫了"""
+                self.log_antispider()
                 time.sleep(randint(60, 120))
             else:
                 js = """
@@ -284,5 +252,9 @@ class SeleniumDownloaderBackend(object):
 
         except Exception as e:
             logger.exception(e)
-        finally:
-            self.clean_wechat_browser()
+            self.log_antispider()
+
+    def log_antispider(self):
+        r = get_redis()
+        if r.incr(CRAWLER_CONFIG['antispider']) == 1:
+            r.setex(CRAWLER_CONFIG['antispider'], 3600, 3600)

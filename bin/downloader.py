@@ -72,13 +72,13 @@ class Downloader(object):
                         r.lpush(CRAWLER_CONFIG["extractor"], json.dumps(item_data))
                         logger.debug(item_data)
 
-                    browser = SeleniumDownloaderBackend(proxy=proxy)
-                    if data.get('kind') == KIND_DETAIL:
-                        res = browser.download_wechat_topic_detail(data, process_topic)
-                    elif data.get('kind') == KIND_HISTORY:
-                        res = browser.download_wechat_history(data, process_topic)
-                    else:
-                        res = browser.download_wechat(data, process_topic)
+                    with SeleniumDownloaderBackend(proxy=proxy) as browser:
+                        if data.get('kind') == KIND_DETAIL:
+                            res = browser.download_wechat_topic_detail(data, process_topic)
+                        elif data.get('kind') == KIND_HISTORY:
+                            res = browser.download_wechat_history(data, process_topic)
+                        else:
+                            res = browser.download_wechat(data, process_topic)
 
                     time.sleep(randint(20, 30))
             except Exception as e:
