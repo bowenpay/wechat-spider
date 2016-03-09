@@ -36,6 +36,8 @@ class Command(BaseCommand):
                     item.save()
 
     def check_wechat_proxies(self):
+        # 删除无效代理
+        qs3 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_FAIL, retry__gte=3).delete()
         # 检测新代理
         qs1 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_NEW)
         # 检测成功代理
