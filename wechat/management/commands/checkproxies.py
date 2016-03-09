@@ -37,20 +37,18 @@ class Command(BaseCommand):
 
     def check_wechat_proxies(self):
         # 删除无效代理
-        qs3 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_FAIL, retry__gte=3).delete()
+        qs3 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_FAIL, retry__gte=1).delete()
         # 检测新代理
         qs1 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_NEW)
         # 检测成功代理
         qs2 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_SUCCESS)
         # 检测失败代理
-        qs3 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_FAIL, retry__lt=3)
+        #qs3 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_FAIL, retry__lt=1)
         for qs in [qs1, qs2, qs3]:
             for item in qs:
                 has_exception, proxy_detected, time_diff = check_wechat(item.host, item.port)
                 if has_exception or not proxy_detected:
-                    item.status = Proxy.STATUS_FAIL
-                    item.retry += 1
-                    item.save()
+                    item.delete()
                 else:
                     item.status = Proxy.STATUS_SUCCESS
                     item.speed = time_diff * 1000
