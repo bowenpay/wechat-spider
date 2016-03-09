@@ -255,4 +255,4 @@ class SeleniumDownloaderBackend(object):
     def log_antispider(self):
         r = get_redis()
         if r.incr(CRAWLER_CONFIG['antispider']) == 1:
-            r.setex(CRAWLER_CONFIG['antispider'], 3600, 0)
+            r.expire(CRAWLER_CONFIG['antispider'], 3600)
