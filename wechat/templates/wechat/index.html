@@ -70,7 +70,7 @@
           {% for item in wechats %}
             <tr>
               <td><a href="{% url 'wechat.edit' item.id %}">{{ item.id}}</a></td>
-              <td><img src="{{ item.avatar}}" class="avatar-list"></td>
+              <td><img src="{{ item.avatar | default:'/static/web/images/touxiang.jpg' }}" class="avatar-list"></td>
               <td><h5><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.name}}</a></h5>
                 <span class="wechat-id"><a target="_blank" href="http://weixin.sogou.com/weixin?type=1&query={{ item.wechatid }}&ie=utf8">{{ item.wechatid }}</a></span>
               </td>

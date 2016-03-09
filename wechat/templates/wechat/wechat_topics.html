@@ -12,7 +12,7 @@
         <div class="form-group">
         <div class="media wechat-item ">
           <div class="media-left">
-              <img class="media-object avatar-list" src="{{ wechat.avatar }}" alt="{{ wechat.name }}">
+              <img class="media-object avatar-list" src="{{ wechat.avatar| default:'/static/web/images/touxiang.jpg' }}" alt="{{ wechat.name }}">
           </div>
           <div class="media-body">
             <h5 class="media-heading">{{wechat.name}} <span class="wechat-id">微信号: {{wechat.wechatid}}</span></h5>
