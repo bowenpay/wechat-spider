@@ -66,6 +66,12 @@ class SeleniumDownloaderBackend(object):
 
     def get_browser(self, proxy):
         # 启动浏览器
+        # 禁止加载image
+        firefox_profile = webdriver.FirefoxProfile()
+        firefox_profile.set_preference('permissions.default.stylesheet', 2)
+        firefox_profile.set_preference('permissions.default.image', 2)
+        firefox_profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
+        # 代理
         if proxy.is_valid():
             myProxy = '%s:%s' % (proxy.host, proxy.port)
             ff_proxy = Proxy({
@@ -74,9 +80,10 @@ class SeleniumDownloaderBackend(object):
                 'ftpProxy': myProxy,
                 'sslProxy': myProxy,
             'noProxy':''})
-            browser = webdriver.Firefox(proxy=ff_proxy)
+
+            browser = webdriver.Firefox(firefox_profile=firefox_profile, proxy=ff_proxy)
         else:
-            browser = webdriver.Firefox()
+            browser = webdriver.Firefox(firefox_profile=firefox_profile)
 
         return browser
 
