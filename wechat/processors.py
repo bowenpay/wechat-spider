@@ -10,6 +10,13 @@ class DjangoModelBackend(object):
 
     def process(self, params):
         C = self._class
+        # 排除被屏蔽的情况
+        if 'mp.weixin.qq.com' not in params.get('url'):
+            return
+        # 排除代理失败的情况
+        if 'wx.qq.com' not in params.get('source'):
+            return
+        # 存储数据
         if params.get('kind') == KIND_DETAIL:
             params.pop('kind', None)
             # 保存微信号
