@@ -5,14 +5,16 @@ from django.core.management.base import BaseCommand
 from wechat.models import Proxy
 from wechat.util import check_proxy
 import requests
+import logging
+logger = logging.getLogger()
 
 class Command(BaseCommand):
     help = 'get proxies'
 
     def handle(self, *args, **options):
         while True:
+            time.sleep(5)
             self.get_proxies()
-            time.sleep(10)
 
     def get_proxies(self):
         # 快代理
@@ -22,7 +24,7 @@ class Command(BaseCommand):
         r = requests.get(url)
         lines = r.text.split()
         for line in lines:
-            print line
+            logger.debug(line)
             try:
                 host, port = line.split(':')
                 Proxy.objects.get_or_create(host=host, port=int(port))

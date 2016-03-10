@@ -44,7 +44,7 @@ class Command(BaseCommand):
         qs2 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_SUCCESS)
         # 检测失败代理
         #qs3 = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_FAIL, retry__lt=1)
-        for qs in [qs1, qs2, qs3]:
+        for qs in [qs1, qs2]:
             for item in qs:
                 has_exception, proxy_detected, time_diff = check_wechat(item.host, item.port)
                 if has_exception or not proxy_detected:
