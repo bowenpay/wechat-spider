@@ -15,7 +15,10 @@ class Command(BaseCommand):
             time.sleep(10)
 
     def get_proxies(self):
-        url = 'http://dev.kuaidaili.com/api/getproxy/?orderid=955742122799513&num=100&area=%E5%A4%A7%E9%99%86&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_ha=1&sp1=1&sep=1'
+        # 快代理
+        #url = 'http://dev.kuaidaili.com/api/getproxy/?orderid=955742122799513&num=100&area=%E5%A4%A7%E9%99%86&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_ha=1&sp1=1&sep=1'
+        # 代理666
+        url = 'http://qsdrk.daili666api.com/ip/?tid=559017461234554&num=100&delay=3&category=2&sortby=time&foreign=none&filter=on'
         r = requests.get(url)
         lines = r.text.split()
         for line in lines:
