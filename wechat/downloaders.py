@@ -68,9 +68,9 @@ class SeleniumDownloaderBackend(object):
         # 启动浏览器
         # 禁止加载image
         firefox_profile = webdriver.FirefoxProfile()
-        firefox_profile.set_preference('permissions.default.stylesheet', 2)
-        firefox_profile.set_preference('permissions.default.image', 2)
-        firefox_profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
+        #firefox_profile.set_preference('permissions.default.stylesheet', 2)
+        #firefox_profile.set_preference('permissions.default.image', 2)
+        #firefox_profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
         # 代理
         if proxy.is_valid():
             myProxy = '%s:%s' % (proxy.host, proxy.port)
@@ -164,7 +164,7 @@ class SeleniumDownloaderBackend(object):
             except Topic.DoesNotExist:
                 links.append((title, item.get_attribute('href'), avatars[idx]))
                 logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
-        for title, link, avatar in links:
+        for title, link, avatar in reversed(links):
             # 可以访问了
             browser.get(link)
             time.sleep(10)

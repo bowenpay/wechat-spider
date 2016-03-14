@@ -83,7 +83,8 @@ def edit(request, id_):
         form = WechatConfigForm(request.POST, instance=wechat)
         if form.is_valid():
             obj = form.save(commit=False)
-            obj.next_crawl_time = datetime.now()
+            if obj.frequency > 0:
+                obj.next_crawl_time = datetime.now()
             obj.save()
             messages.success(request, '保存成功.')
             return redirect(reverse('wechat.edit', kwargs={"id_": id_}))
@@ -163,7 +164,7 @@ def topic_add(request):
         }
 
         r = get_redis()
-        r.lpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))
+        r.rpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))
         messages.success(request, '链接已经提交给爬虫,稍后查看爬取结果.')
     else:
         messages.error(request, 'url 错误, 添加失败')

@@ -59,6 +59,19 @@ NORMAL_RULES = [
     ]
   },
   {
+    "key":"words",
+    "rules":[
+      {
+        "kind":"xpath",
+        "data":"//div[@id='js_content']//text()"
+      },
+      {
+        "kind":"python",
+        "data":"out_val=sum([len(item.strip()) for item in in_val])"
+      }
+    ]
+  },
+  {
     "key":"publish_time",
     "rules":[
       {
@@ -106,6 +119,19 @@ DETAIL_RULES = [
       {
         "kind":"image",
         "data":""
+      }
+    ]
+  },
+  {
+    "key":"words",
+    "rules":[
+      {
+        "kind":"xpath",
+        "data":"//div[@id='js_content']//text()"
+      },
+      {
+        "kind":"python",
+        "data":"out_val=sum([len(item.strip()) for item in in_val])"
       }
     ]
   },

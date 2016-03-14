@@ -33,16 +33,18 @@
             <th>标题</th>
             <th>原文链接</th>
             <th>时间</th>
+            <th>字数</th>
           </tr>
         </thead>
         <tbody>
         {% for item in topics %}
           <tr>
             <td>{{ item.id}}</td>
-              <td><img src="{{ item.avatar}}" class="topic-avatar"> </td>
+              <td><img src="{{ item.avatar| default:'/static/web/images/touxiang.jpg'}}" class="topic-avatar"> </td>
             <td><a target="_blank" href="{% url 'wechat.topic_detail' item.id %}">{{ item.title}}</a></td>
             <td><a target="_blank" href="{{ item.url }}">{{ item.url | truncatechars:40 }}</a></td>
             <td>{{ item.publish_time}}</td>
+            <td>{{ item.words }}</td>
           </tr>
         {% endfor %}
         </tbody>

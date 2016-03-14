@@ -36,6 +36,7 @@ class Wechat(models.Model):
 class Topic(models.Model):
     wechat = models.ForeignKey('Wechat', verbose_name='公众号')
     uniqueid = models.CharField(unique=True, max_length=100, verbose_name='url的md5值')
+    words = models.IntegerField(default=0, verbose_name='字数')
 
     url = models.CharField(max_length=500, default='', verbose_name='文章的url')
     avatar = models.CharField(max_length=500, default='', verbose_name='缩略图地址')
