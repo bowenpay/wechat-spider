@@ -80,7 +80,7 @@ class Downloader(object):
                         else:
                             res = browser.download_wechat(data, process_topic)
 
-                    time.sleep(randint(20, 30))
+                    time.sleep(randint(1, 5))
             except Exception as e:
                 print e
                 raise

@@ -99,7 +99,7 @@ class SeleniumDownloaderBackend(object):
         element_querybox.send_keys(wechatid, Keys.ARROW_DOWN)
         element_search_btn = browser.find_element_by_xpath("//input[@value='搜公众号']")
         element_search_btn.click()
-        time.sleep(10)
+        time.sleep(3)
         print browser.title
 
     def visit_wechat_topic_list(self):
@@ -107,11 +107,11 @@ class SeleniumDownloaderBackend(object):
         # 找到搜索列表第一个微信号, 点击打开新窗口
         element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h3")
         element_wechat.click()
-        time.sleep(10)
+        time.sleep(3)
         # 切到当前的文章列表页窗口
         new_handler = browser.window_handles[-1]
         browser.switch_to.window(new_handler)
-        time.sleep(10)
+        time.sleep(3)
 
     def get_publish_time(self, txt):
         if '小时前' in txt:
@@ -143,7 +143,7 @@ class SeleniumDownloaderBackend(object):
             element_wxmore = browser.find_element_by_id("wxmore")
             if element_wxmore.is_displayed():
                 element_wxmore.click()
-                time.sleep(10)
+                time.sleep(3)
                 self.visit_wechat_history_topic_list(history_start)
             else:
                 return
@@ -167,12 +167,12 @@ class SeleniumDownloaderBackend(object):
         for title, link, avatar in reversed(links):
             # 可以访问了
             browser.get(link)
-            time.sleep(10)
+            time.sleep(3)
 
             if 'antispider' in browser.current_url:
                 """被检测出爬虫了"""
                 self.log_antispider()
-                time.sleep(randint(60, 120))
+                time.sleep(randint(1, 5))
             else:
                 js = """
                     var imgs = document.getElementsByTagName('img');
@@ -192,7 +192,7 @@ class SeleniumDownloaderBackend(object):
                     'avatar': avatar,
                     'title': title
                 })
-                time.sleep(randint(10, 20))
+                time.sleep(randint(1, 5))
 
     def download_wechat(self, data, process_topic):
         """ 爬取最新文章
@@ -227,12 +227,12 @@ class SeleniumDownloaderBackend(object):
         browser = self.browser
         try:
             browser.get(url)
-            time.sleep(10)
+            time.sleep(3)
 
             if 'antispider' in browser.current_url:
                 """被检测出爬虫了"""
                 self.log_antispider()
-                time.sleep(randint(60, 120))
+                time.sleep(randint(1, 5))
             else:
                 js = """
                     var imgs = document.getElementsByTagName('img');
@@ -253,7 +253,7 @@ class SeleniumDownloaderBackend(object):
                     'title': '',
                     'kind': KIND_DETAIL
                 })
-                time.sleep(randint(10, 20))
+                time.sleep(randint(1, 5))
 
         except Exception as e:
             logger.exception(e)
