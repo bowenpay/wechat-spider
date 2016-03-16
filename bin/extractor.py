@@ -33,6 +33,19 @@ NORMAL_RULES = [
     ]
   },
   {
+    "key":"origin_title",
+    "rules":[
+      {
+        "kind":"xpath",
+        "data":"//title/text()"
+      },
+      {
+        "kind":"python",
+        "data":"out_val=in_val[0] if in_val else '';"
+      }
+    ]
+  },
+  {
     "key":"source",
     "rules":[
       {
@@ -93,6 +106,19 @@ NORMAL_RULES = [
 DETAIL_RULES = [
   {
     "key":"title",
+    "rules":[
+      {
+        "kind":"xpath",
+        "data":"//title/text()"
+      },
+      {
+        "kind":"python",
+        "data":"out_val=in_val[0] if in_val else '';"
+      }
+    ]
+  },
+  {
+    "key":"origin_title",
     "rules":[
       {
         "kind":"xpath",

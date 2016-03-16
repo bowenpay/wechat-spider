@@ -41,6 +41,7 @@ class Topic(models.Model):
     url = models.CharField(max_length=500, default='', verbose_name='文章的url')
     avatar = models.CharField(max_length=500, default='', verbose_name='缩略图地址')
     title = models.CharField(max_length=200, verbose_name='标题')
+    origin_title = models.CharField(max_length=200, default='', verbose_name='原文标题')
 
     abstract = models.TextField(default='', verbose_name='内容简介')
     content = models.TextField(default='', verbose_name='文章内容')
