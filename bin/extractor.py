@@ -38,6 +38,10 @@ NORMAL_RULES = [
       {
         "kind":"image",
         "data":""
+      },
+      {
+        "kind":"python",
+        "data":"from bs4 import BeautifulSoup;bs=BeautifulSoup(in_val);bs.select('span .vote_area')[0].replace_with('');out_val=bs.prettify();"
       }
     ]
   },
@@ -55,6 +59,10 @@ NORMAL_RULES = [
       {
         "kind":"image",
         "data":""
+      },
+      {
+        "kind":"python",
+        "data":"from bs4 import BeautifulSoup;bs=BeautifulSoup(in_val);bs.select('span .vote_area')[0].replace_with('');out_val=bs.prettify();"
       }
     ]
   },
@@ -102,6 +110,10 @@ DETAIL_RULES = [
       {
         "kind":"image",
         "data":""
+      },
+      {
+        "kind":"python",
+        "data":"from bs4 import BeautifulSoup;bs=BeautifulSoup(in_val);bs.select('span .vote_area')[0].replace_with('');out_val=bs.prettify();"
       }
     ]
   },
@@ -119,6 +131,10 @@ DETAIL_RULES = [
       {
         "kind":"image",
         "data":""
+      },
+      {
+        "kind":"python",
+        "data":"from bs4 import BeautifulSoup;bs=BeautifulSoup(in_val);bs.select('span .vote_area')[0].replace_with('');out_val=bs.prettify();"
       }
     ]
   },
