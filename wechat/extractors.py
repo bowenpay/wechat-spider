@@ -161,9 +161,9 @@ class WechatContentExtractor(BaseExtractor):
         try:
             bs=BeautifulSoup(res)
             # 去掉投票的iframe
-            votes = bs.select('span .vote_area')
-            if len(votes) > 0:
-                votes[0].replace_with('')
+            vote = bs.find('span', {'class':'vote_area'})
+            if vote:
+                vote.replace_with('')
             # 将图片和视频的宽高变为auto
             imgs = bs.select('img')
             for x in imgs:
