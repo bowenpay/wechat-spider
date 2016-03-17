@@ -169,6 +169,24 @@ class WechatContentExtractor(BaseExtractor):
             for x in imgs:
                 if x.get('style'):
                     x['style'] = re.sub(r'(\w+px)', 'auto', x['style'])
+            # 将视频的宽高设置为auto
+            videos = bs.find_all('iframe', {'class': 'video_iframe'})
+            for item in videos:
+                item['width'] = 'auto'
+                item['height'] = 'auto'
+                if item.get('src'):
+                    s = item.get('src')
+                    s = re.sub(r'(height=\d+[\.\d+]*)', 'height=auto', s)
+                    s = re.sub(r'(width=\d+[\.\d+]*)', 'width=auto', s)
+                    item['src'] = s
+                if item.get('data-src'):
+                    s = item.get('data-src')
+                    s = re.sub(r'(height=\d+[\.\d+]*)', 'height=auto', s)
+                    s = re.sub(r'(width=\d+[\.\d+]*)', 'width=auto', s)
+                    item['data-src'] = s
+                #if item.get('style'):
+                #    item['style'] = re.sub(r'(\w+px)', 'auto', item['style'])
+
             res = unicode(bs)
         except Exception as e:
             logger.exception(e)
