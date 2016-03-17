@@ -4,6 +4,8 @@ from abc import ABCMeta
 from abc import abstractmethod
 import requests
 import oss2
+import re
+from bs4 import BeautifulSoup
 from oss2.exceptions import NotFound
 from copy import copy
 from hashlib import md5
@@ -140,6 +142,34 @@ class PythonExtractor(BaseExtractor):
         try:
             exec(self.code, g, l)
             res = l["out_val"]
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            return res
+
+
+
+class WechatContentExtractor(BaseExtractor):
+    """
+    去掉投票的iframe,将图片和视频的宽高变为auto
+    """
+    def __init__(self, data):
+        self.data = data
+
+    def extract(self):
+        res = self.data
+        try:
+            bs=BeautifulSoup(res)
+            # 去掉投票的iframe
+            votes = bs.select('span .vote_area')
+            if len(votes) > 0:
+                votes[0].replace_with('')
+            # 将图片和视频的宽高变为auto
+            imgs = bs.select('img')
+            for x in imgs:
+                if x.get('style'):
+                    x['style'] = re.sub(r'(\w+px)', 'auto', x['style'])
+            res = unicode(bs)
         except Exception as e:
             logger.exception(e)
         finally:

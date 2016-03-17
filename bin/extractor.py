@@ -13,7 +13,7 @@ django.setup()
 import json
 from django.conf import settings
 from wechatspider.util import get_redis, get_uniqueid
-from wechat.extractors import XPathExtractor, PythonExtractor, ImageExtractor, VideoExtractor
+from wechat.extractors import XPathExtractor, PythonExtractor, ImageExtractor, VideoExtractor, WechatContentExtractor
 from wechat.constants import KIND_HISTORY, KIND_DETAIL
 import logging
 logger = logging.getLogger()
@@ -53,8 +53,8 @@ NORMAL_RULES = [
         "data":""
       },
       {
-        "kind":"python",
-        "data":"from bs4 import BeautifulSoup;bs=BeautifulSoup(in_val);bs.select('span .vote_area')[0].replace_with('');out_val=bs.prettify();"
+        "kind":"WechatContent",
+        "data":""
       }
     ]
   },
@@ -74,8 +74,8 @@ NORMAL_RULES = [
         "data":""
       },
       {
-        "kind":"python",
-        "data":"from bs4 import BeautifulSoup;bs=BeautifulSoup(in_val);bs.select('span .vote_area')[0].replace_with('');out_val=bs.prettify();"
+        "kind":"WechatContent",
+        "data":""
       }
     ]
   },
@@ -138,8 +138,8 @@ DETAIL_RULES = [
         "data":""
       },
       {
-        "kind":"python",
-        "data":"from bs4 import BeautifulSoup;bs=BeautifulSoup(in_val);bs.select('span .vote_area')[0].replace_with('');out_val=bs.prettify();"
+        "kind":"WechatContent",
+        "data":""
       }
     ]
   },
@@ -159,8 +159,8 @@ DETAIL_RULES = [
         "data":""
       },
       {
-        "kind":"python",
-        "data":"from bs4 import BeautifulSoup;bs=BeautifulSoup(in_val);bs.select('span .vote_area')[0].replace_with('');out_val=bs.prettify();"
+        "kind":"WechatContent",
+        "data":""
       }
     ]
   },
@@ -278,6 +278,8 @@ class Extractor(object):
                 extractor = ImageExtractor(res)
             elif rule["kind"] == "video":
                 extractor = VideoExtractor(res)
+            elif rule["kind"] == "WechatContent":
+                extractor = WechatContentExtractor(res)
 
             res = extractor.extract()
 
