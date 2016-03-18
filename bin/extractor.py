@@ -178,6 +178,19 @@ DETAIL_RULES = [
     ]
   },
   {
+    "key":"abstract",
+    "rules":[
+      {
+        "kind":"xpath",
+        "data":"//div[@id='js_content']//text()"
+      },
+      {
+        "kind":"python",
+        "data":"tmp=''.join([item.strip() for item in in_val]);out_val = '%s...' % tmp[:220] if len(tmp) > 220 else tmp;"
+      }
+    ]
+  },
+  {
     "key":"avatar",
     "rules":[
       {
@@ -300,7 +313,8 @@ class Extractor(object):
                 "url": data["url"],
                 "title": data["title"],
                 "source": data["body"],
-                "avatar": data["avatar"]
+                "avatar": data["avatar"],
+                "abstract": data["abstract"]
             }
             rules = NORMAL_RULES
 

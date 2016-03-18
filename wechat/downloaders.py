@@ -153,7 +153,8 @@ class SeleniumDownloaderBackend(object):
         elems = browser.find_elements_by_xpath("//div[@class='txt-box']/h4/a")
         elems_avatars = browser.find_elements_by_xpath("//div[@class='img_box2']//img")
         avatars = [item.get_attribute('src').split('url=')[1] for item in elems_avatars]
-        print '###############', elems
+        elems_abstracts = browser.find_elements_by_xpath("//div[@class='txt-box']/p")
+        abstracts = [item.text for item in elems_abstracts]
         links = []
         for idx, item in enumerate(elems):
             title = item.text.strip()
@@ -162,9 +163,9 @@ class SeleniumDownloaderBackend(object):
             try:
                 Topic.objects.get(uniqueid=uniqueid)
             except Topic.DoesNotExist:
-                links.append((title, item.get_attribute('href'), avatars[idx]))
+                links.append((title, item.get_attribute('href'), avatars[idx], abstracts[idx]))
                 logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
-        for title, link, avatar in reversed(links):
+        for title, link, avatar, abstract in reversed(links):
             # 可以访问了
             browser.get(link)
             time.sleep(3)
@@ -190,7 +191,8 @@ class SeleniumDownloaderBackend(object):
                     'url': browser.current_url,
                     'body': body,
                     'avatar': avatar,
-                    'title': title
+                    'title': title,
+                    'abstract': abstract
                 })
                 time.sleep(randint(1, 5))
 
