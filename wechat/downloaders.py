@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'yijingping'
 import time
+import json
 import platform
 from datetime import datetime, timedelta
 from dateutil.parser import parse
@@ -207,6 +208,7 @@ class SeleniumDownloaderBackend(object):
         except Exception as e:
             logger.exception(e)
             self.log_antispider()
+            self.retry_crawl(data)
 
     def download_wechat_history(self, data, process_topic):
         """ 爬取历史文章
@@ -221,6 +223,7 @@ class SeleniumDownloaderBackend(object):
         except Exception as e:
             logger.exception(e)
             self.log_antispider()
+            self.retry_crawl(data)
 
     def download_wechat_topic_detail(self, data, process_topic):
         """ 根据url爬取文章的详情页
@@ -234,6 +237,7 @@ class SeleniumDownloaderBackend(object):
             if 'antispider' in browser.current_url:
                 """被检测出爬虫了"""
                 self.log_antispider()
+                self.retry_crawl(data)
                 time.sleep(randint(1, 5))
             else:
                 js = """
@@ -260,8 +264,32 @@ class SeleniumDownloaderBackend(object):
         except Exception as e:
             logger.exception(e)
             self.log_antispider()
+            self.retry_crawl(data)
 
     def log_antispider(self):
         r = get_redis()
         if r.incr(CRAWLER_CONFIG['antispider']) <= 1:
             r.expire(CRAWLER_CONFIG['antispider'], 3600)
+
+
+    def retry_crawl(self, data):
+        r = get_redis()
+        retry = data.get('retry', 0)
+        if retry >= 3:
+            return
+
+        if data.get('kind') == KIND_DETAIL:
+            data = {
+                'kind': data['kind'],
+                'url': data['url'],
+                'retry': retry + 1
+            }
+        else:
+            data = {
+                'kind': data['kind'],
+                'wechat_id': data['wechat_id'],
+                'wechatid': data['wechatid'],
+                'retry': retry + 1
+            }
+
+        r.lpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))

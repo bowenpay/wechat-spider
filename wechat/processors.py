@@ -19,6 +19,7 @@ class DjangoModelBackend(object):
         # 存储数据
         if params.get('kind') == KIND_DETAIL:
             params.pop('kind', None)
+            params.pop('retry', None)
             # 保存微信号
             wechatid = params.pop('wechatid', '')
             name = params.pop('name', '')
@@ -37,6 +38,7 @@ class DjangoModelBackend(object):
 
         else:
             params.pop('kind', None)
+            params.pop('retry', None)
             params['uniqueid'] = get_uniqueid('%s:%s' % (params['wechat_id'], params['title']))
             C.objects.update_or_create(uniqueid=params['uniqueid'], defaults=params)
 
