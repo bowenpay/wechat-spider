@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^topic/$', views.topic_list, name="wechat.topic_list"),
     url(r'^topic/add/$', views.topic_add, name="wechat.topic_add"),
     url(r'^search/$', views.search, name="wechat.search"),
+
+    url(r'^proxy/(?P<id_>\d+)/edit/$', views.proxy_edit, name="wechat.proxy_edit"),
 ]

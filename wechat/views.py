@@ -6,6 +6,7 @@ import requests
 from io import StringIO
 from lxml import etree
 from datetime import datetime
+from django.http import HttpResponse
 from django.contrib import messages
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
@@ -218,3 +219,12 @@ def searcy_wechat(query):
         })
 
     return wechats
+
+
+def proxy_edit(request, id_):
+    proxy = get_object_or_404(Proxy, pk=id_)
+    if request.method == 'POST':
+        proxy.host = request.POST['host']
+        proxy.port = request.POST['port']
+        proxy.save()
+        return HttpResponse('proxy change success')
