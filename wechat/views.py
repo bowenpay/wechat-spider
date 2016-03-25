@@ -222,6 +222,7 @@ def search_wechat(query):
     return wechats
 
 
+@csrf_exempt
 def proxy_edit(request, id_):
     proxy = get_object_or_404(Proxy, pk=id_)
     if request.method == 'POST':
