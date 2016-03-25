@@ -23,4 +23,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^wechat/', include('wechat.urls')),
 
+    url(r'^api/wechat/', include('wechat.api_urls')),
+
 ]

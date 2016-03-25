@@ -6,7 +6,8 @@ import requests
 from io import StringIO
 from lxml import etree
 from datetime import datetime
-from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
@@ -175,11 +176,11 @@ def topic_add(request):
 
 def search(request):
     query = request.GET.get('query')
-    wechats = searcy_wechat(query)
+    wechats = search_wechat(query)
     return render_to_response('wechat/search_content.html', RequestContext(request, {"wechats": wechats}))
 
 
-def searcy_wechat(query):
+def search_wechat(query):
     p = Proxy.objects.filter(kind=Proxy.KIND_SEARCH, status=Proxy.STATUS_SUCCESS).order_by('?').first()
     if p:
         proxies = {
@@ -228,3 +229,75 @@ def proxy_edit(request, id_):
         proxy.port = request.POST['port']
         proxy.save()
         return HttpResponse('proxy change success')
+
+
+### api 接口
+
+def api_search(request):
+    query = request.GET.get('query')
+    wechats = search_wechat(query)
+    print wechats
+    return JsonResponse({
+        'ret': 0,
+        'data': wechats
+    })
+
+
+@csrf_exempt
+def api_topic_add(request):
+    url = request.POST.get('url', '')
+    if url.startswith('http://mp.weixin.qq.com/'):
+        data = {
+            'kind': KIND_DETAIL,
+            'url': url
+        }
+
+        r = get_redis()
+        r.rpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))
+        return JsonResponse({
+            'ret': 0,
+            'message': '提交成功,链接已经提交给爬虫,稍后查看爬取结果'
+        })
+    else:
+        return JsonResponse({
+            'ret': 1,
+            'message': '提交失败,url必须以 http://mp.weixin.qq.com/ 开头'
+        })
+
+
+@csrf_exempt
+def api_add(request):
+    if request.method == 'POST':
+        P = request.POST
+        wechatid = P.get('wechatid')
+        frequency = int(P.get('frequency'))
+        wechats = search_wechat(wechatid)
+        if not wechats:
+            return JsonResponse({
+                'ret': 1,
+                'message': '公众号不存在'
+            })
+        else:
+            info = wechats[0]
+
+        avatar = download_to_oss(info.get('avatar'), settings.OSS2_CONFIG["IMAGES_PATH"])
+        qrcode = download_to_oss(info.get('qrcode'), settings.OSS2_CONFIG["IMAGES_PATH"])
+
+        obj, created = Wechat.objects.update_or_create(wechatid=wechatid, defaults={
+            'name': info.get('name', ''),
+            'intro': info.get('intro', ''),
+            'avatar': avatar,
+            'qrcode': qrcode,
+            'frequency': frequency,
+            'next_crawl_time': datetime.now()
+        })
+        if created:
+            return JsonResponse({
+                    'ret': 0,
+                    'message': '已添加'
+                })
+        else:
+            return JsonResponse({
+                'ret': 0,
+                'message': '已更新'
+            })
