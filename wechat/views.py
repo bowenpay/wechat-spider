@@ -41,12 +41,20 @@ def index(request):
         _objs = paginator.page(paginator.num_pages)
 
     r = get_redis()
+    # 获取代理状态
+    proxies = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_SUCCESS)[:1]
+    if len(proxies) > 0:
+        dt = datetime.now() - proxies[0].update_time
+        _proxy_status = '正常' if dt.total_seconds > 3600 else '异常'
+    else:
+        _proxy_status = '异常'
     context.update({
         "active_nav": "wechats",
         "wechats": _objs,
         "params": params,
         "downloader": r.llen(CRAWLER_CONFIG['downloader']) or 0,
-        "antispider": r.get(CRAWLER_CONFIG['antispider']) or 0
+        "antispider": r.get(CRAWLER_CONFIG['antispider']) or 0,
+        "proxy_status": _proxy_status
 
     })
     print context
@@ -226,11 +234,27 @@ def search_wechat(query):
 def proxy_edit(request, id_):
     proxy = get_object_or_404(Proxy, pk=id_)
     if request.method == 'POST':
-        proxy.host = request.POST['host']
-        proxy.port = request.POST['port']
-        proxy.save()
+        if proxy.host != request.POST['host'] and proxy.port != int(request.POST['port']):
+            proxy.host = request.POST['host']
+            proxy.port = request.POST['port']
+            proxy.save()
         return HttpResponse('proxy change success')
 
+
+@csrf_exempt
+def proxy_status(request):
+    proxies = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_SUCCESS)[:1]
+    if len(proxies) > 0:
+        return JsonResponse({
+            'ret': 0,
+            'update_time': str(proxies[0].update_time),
+            'timestamp': int(proxies[0].update_time.strftime('%s'))
+        })
+    else:
+        return JsonResponse({
+            'ret': 1,
+            'message': '没有有效的下载代理'
+        })
 
 ### api 接口
 

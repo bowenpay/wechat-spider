@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^search/$', views.search, name="wechat.search"),
 
     url(r'^proxy/(?P<id_>\d+)/edit/$', views.proxy_edit, name="wechat.proxy_edit"),
+    url(r'^proxy/status/$', views.proxy_status, name="wechat.proxy_status"),
 ]
