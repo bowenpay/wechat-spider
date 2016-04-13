@@ -234,7 +234,9 @@ def search_wechat(query):
 def proxy_edit(request, id_):
     proxy = get_object_or_404(Proxy, pk=id_)
     if request.method == 'POST':
-        if proxy.host != request.POST['host'] and proxy.port != int(request.POST['port']):
+        print proxy.host, request.POST['host']
+        print proxy.port, request.POST['port']
+        if proxy.host != request.POST['host'] or proxy.port != int(request.POST['port']):
             proxy.host = request.POST['host']
             proxy.port = request.POST['port']
             proxy.save()
