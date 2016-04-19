@@ -106,7 +106,7 @@ class SeleniumDownloaderBackend(object):
     def visit_wechat_topic_list(self):
         browser = self.browser
         # 找到搜索列表第一个微信号, 点击打开新窗口
-        element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h3")
+        element_wechat = browser.find_element_by_xpath("//h4[@class='weui_media_title']")
         element_wechat.click()
         time.sleep(3)
         # 切到当前的文章列表页窗口
@@ -151,10 +151,13 @@ class SeleniumDownloaderBackend(object):
 
     def download_wechat_topics(self, wechat_id, process_topic):
         browser = self.browser
-        elems = browser.find_elements_by_xpath("//div[@class='txt-box']/h4/a")
-        elems_avatars = browser.find_elements_by_xpath("//div[@class='img_box2']//img")
-        avatars = [item.get_attribute('src').split('url=')[1] for item in elems_avatars]
-        elems_abstracts = browser.find_elements_by_xpath("//div[@class='txt-box']/p")
+	js = """ return document.documentElement.innerHTML; """
+	body = browser.execute_script(js)
+
+        elems = browser.find_elements_by_xpath("//h4[@class='weui_media_title']")
+        elems_avatars = browser.find_elements_by_xpath("//div[@class='weui_media_box appmsg']/span")
+        avatars = [item.get_attribute('style')[21:-1] for item in elems_avatars]
+        elems_abstracts = browser.find_elements_by_xpath("//p[@class='weui_media_desc']")
         abstracts = [item.text for item in elems_abstracts]
         links = []
         for idx, item in enumerate(elems):
@@ -164,7 +167,7 @@ class SeleniumDownloaderBackend(object):
             try:
                 Topic.objects.get(uniqueid=uniqueid)
             except Topic.DoesNotExist:
-                links.append((title, item.get_attribute('href'), avatars[idx], abstracts[idx]))
+                links.append((title, item.get_attribute('hrefs'), avatars[idx], abstracts[idx]))
                 logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
         for title, link, avatar, abstract in reversed(links):
             # 可以访问了
