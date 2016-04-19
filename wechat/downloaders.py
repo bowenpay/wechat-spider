@@ -6,6 +6,8 @@ import platform
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from random import sample, randint
+from lxml import etree
+from io import StringIO
 from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -106,7 +108,7 @@ class SeleniumDownloaderBackend(object):
     def visit_wechat_topic_list(self):
         browser = self.browser
         # 找到搜索列表第一个微信号, 点击打开新窗口
-        element_wechat = browser.find_element_by_xpath("//h4[@class='weui_media_title']")
+        element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h3")
         element_wechat.click()
         time.sleep(3)
         # 切到当前的文章列表页窗口
@@ -151,23 +153,31 @@ class SeleniumDownloaderBackend(object):
 
     def download_wechat_topics(self, wechat_id, process_topic):
         browser = self.browser
-	js = """ return document.documentElement.innerHTML; """
-	body = browser.execute_script(js)
+        js = """ return document.documentElement.innerHTML; """
+        body = browser.execute_script(js)
 
-        elems = browser.find_elements_by_xpath("//h4[@class='weui_media_title']")
-        elems_avatars = browser.find_elements_by_xpath("//div[@class='weui_media_box appmsg']/span")
-        avatars = [item.get_attribute('style')[21:-1] for item in elems_avatars]
-        elems_abstracts = browser.find_elements_by_xpath("//p[@class='weui_media_desc']")
-        abstracts = [item.text for item in elems_abstracts]
+        htmlparser = etree.HTMLParser()
+        tree = etree.parse(StringIO(body), htmlparser)
+
+        elems = [item.text for item in tree.xpath("//h4[@class='weui_media_title']")]
+        hrefs = ['http://mp.weixin.qq.com%s' % item for item in tree.xpath("//h4[@class='weui_media_title']/@hrefs")]
+        elems_avatars = tree.xpath("//div[@class='weui_media_box appmsg']/span/@style")
+        avatars = [item[21:-1] for item in elems_avatars]
+        elems_abstracts = tree.xpath("//p[@class='weui_media_desc']")
+        abstracts = [item.text.strip() for item in elems_abstracts]
         links = []
         for idx, item in enumerate(elems):
-            title = item.text.strip()
+            title = item.strip()
             print title
+            if not title:
+                continue
             uniqueid = get_uniqueid('%s:%s' % (wechat_id, title))
             try:
                 Topic.objects.get(uniqueid=uniqueid)
             except Topic.DoesNotExist:
-                links.append((title, item.get_attribute('hrefs'), avatars[idx], abstracts[idx]))
+                #print len(elems), len(hrefs), len(avatars), len(abstracts)
+                #print elems, hrefs, avatars, abstracts
+                links.append((title, hrefs[idx], avatars[idx], abstracts[idx]))
                 logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
         for title, link, avatar, abstract in reversed(links):
             # 可以访问了
