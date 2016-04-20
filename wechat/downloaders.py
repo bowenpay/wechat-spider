@@ -116,41 +116,6 @@ class SeleniumDownloaderBackend(object):
         browser.switch_to.window(new_handler)
         time.sleep(3)
 
-    def get_publish_time(self, txt):
-        if '小时前' in txt:
-            res = datetime.now()
-        elif '天前' in txt:
-            days = int(txt.split('天前')[0])
-            res = datetime.now() - timedelta(days=days)
-        else:
-            try:
-                res = parse(txt)
-            except Exception as e:
-                logger.exception(e)
-                res = datetime.now()
-        return res
-
-    def visit_wechat_history_topic_list(self, history_start):
-        browser = self.browser
-        start_time = parse(history_start)
-        # 找到搜索列表第一个微信号, 点击打开新窗口
-        element_publish_times = browser.find_elements_by_xpath("//div[@class='s-p']")
-        if len(element_publish_times) > 1:
-            element_publish_time = element_publish_times[-1]
-        else:
-            return
-
-        txt_publish_time = element_publish_time.text.strip()
-        publish_time = self.get_publish_time(txt_publish_time)
-        if publish_time > start_time:
-            element_wxmore = browser.find_element_by_id("wxmore")
-            if element_wxmore.is_displayed():
-                element_wxmore.click()
-                time.sleep(3)
-                self.visit_wechat_history_topic_list(history_start)
-            else:
-                return
-
     def download_wechat_topics(self, wechat_id, process_topic):
         browser = self.browser
         js = """ return document.documentElement.innerHTML; """
@@ -166,7 +131,7 @@ class SeleniumDownloaderBackend(object):
         elems_abstracts = tree.xpath("//p[@class='weui_media_desc']")
         abstracts = [item.text.strip() for item in elems_abstracts]
         links = []
-        for idx, item in enumerate(elems):
+        for idx, item in enumerate(elems[:10]):
             title = item.strip()
             print title
             if not title:
@@ -217,21 +182,6 @@ class SeleniumDownloaderBackend(object):
         try:
             self.visit_wechat_index(wechatid)
             self.visit_wechat_topic_list()
-            self.download_wechat_topics(wechat_id, process_topic)
-        except Exception as e:
-            logger.exception(e)
-            self.log_antispider()
-            self.retry_crawl(data)
-
-    def download_wechat_history(self, data, process_topic):
-        """ 爬取历史文章
-        """
-        wechat_id, wechatid, history_start, history_end = data['wechat_id'], data['wechatid'], data['history_start'], data['history_end']
-        topics = []
-        try:
-            self.visit_wechat_index(wechatid)
-            self.visit_wechat_topic_list()
-            self.visit_wechat_history_topic_list(history_start)
             self.download_wechat_topics(wechat_id, process_topic)
         except Exception as e:
             logger.exception(e)
