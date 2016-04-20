@@ -15,14 +15,14 @@ from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from wechat.constants import KIND_DETAIL
-from wechatspider.util import get_redis
+from wechatspider.util import get_redis, login_required
 from .forms import WechatForm, WechatConfigForm
 from .models import Wechat, Topic, Proxy
 from .extractors import download_to_oss
 
 CRAWLER_CONFIG = settings.CRAWLER_CONFIG
 
-
+@login_required
 def index(request):
     context = {}
     params = request.GET.copy()
@@ -77,6 +77,7 @@ def add(request):
             return redirect(reverse('wechat.index'))
 
 
+@login_required
 def edit(request, id_):
     wechat = get_object_or_404(Wechat, pk=id_)
     if request.method == 'GET':
@@ -104,6 +105,7 @@ def edit(request, id_):
             return redirect(reverse('wechat.edit', kwargs={"id_": id_}))
 
 
+@login_required
 def topic_list(request):
     context = {}
     # 文章信息
@@ -165,6 +167,7 @@ def topic_detail(request, id_):
     }))
 
 
+@login_required
 def topic_add(request):
     url = request.POST.get('url', '')
     if url.startswith('http://mp.weixin.qq.com/'):

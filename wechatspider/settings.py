@@ -174,7 +174,7 @@ OSS2_CONFIG = {
     "VIDEOS_PATH": "videos/",
     "CDN_DOMAIN": "pystats.bowenpay.com"
 }
-
+LOGIN_URL = '/admin/login/'
 ## Import local settings
 try:
     from local_settings import *
