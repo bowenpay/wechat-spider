@@ -129,7 +129,7 @@ class SeleniumDownloaderBackend(object):
         elems_avatars = tree.xpath("//div[@class='weui_media_box appmsg']/span/@style")
         avatars = [item[21:-1] for item in elems_avatars]
         elems_abstracts = tree.xpath("//p[@class='weui_media_desc']")
-        abstracts = [item.text.strip() for item in elems_abstracts]
+        abstracts = [item.text.strip() if item.text else '' for item in elems_abstracts]
         links = []
         for idx, item in enumerate(elems[:10]):
             title = item.strip()
