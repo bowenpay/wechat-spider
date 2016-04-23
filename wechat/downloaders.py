@@ -238,16 +238,18 @@ class SeleniumDownloaderBackend(object):
     def retry_crawl(self, data):
         r = get_redis()
         retry = data.get('retry', 0)
-        if retry >= 3:
-            return
 
         if data.get('kind') == KIND_DETAIL:
+            if retry >= 1000:
+                return
             data = {
                 'kind': data['kind'],
                 'url': data['url'],
                 'retry': retry + 1
             }
         else:
+            if retry >= 3:
+                return
             data = {
                 'kind': data['kind'],
                 'wechat_id': data['wechat_id'],
