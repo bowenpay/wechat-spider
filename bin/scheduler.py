@@ -13,7 +13,6 @@ django.setup()
 import json
 from wechat.models import Wechat
 from django.conf import settings
-from django.db import transaction
 import logging
 logger = logging.getLogger()
 from datetime import datetime, timedelta
@@ -31,9 +30,6 @@ class Scheduler(object):
         while True:
             now = datetime.now()
             # 获取要抓取的公众号
-            # 手动commit, 确保获取最新的数据
-            transaction.enter_transaction_management()
-            transaction.commit()
             wechats = Wechat.objects.filter(frequency__gt=0, next_crawl_time__lt=now).order_by('-id')
             for item in wechats:
                 data = {
