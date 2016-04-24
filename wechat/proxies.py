@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 __author__ = 'yijingping'
+from django.db import transaction
 from .models import Proxy
 
 class MysqlProxyBackend(object):
     def __init__(self):
+        # 手动commit, 确保获取最新的数据
+        transaction.enter_transaction_management()
+        transaction.commit()
         proxy = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_SUCCESS).order_by('?').first()
         if proxy:
             self.user = proxy.user

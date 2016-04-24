@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'yijingping'
+from django.db import transaction
 from wechatspider.util import get_uniqueid
 from wechat.constants import KIND_DETAIL
 from wechat.models import Wechat
@@ -9,6 +10,10 @@ class DjangoModelBackend(object):
         self._class = _class
 
     def process(self, params):
+        # 手动commit, 确保获取最新的数据
+        transaction.enter_transaction_management()
+        transaction.commit()
+
         C = self._class
         # 排除被屏蔽的情况
         if 'mp.weixin.qq.com' not in params.get('url'):
