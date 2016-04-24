@@ -22,6 +22,9 @@ from .extractors import download_to_oss
 
 CRAWLER_CONFIG = settings.CRAWLER_CONFIG
 
+import logging
+logging.basicConfig()
+
 @login_required
 def index(request):
     context = {}
@@ -45,7 +48,7 @@ def index(request):
     proxies = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_SUCCESS)[:1]
     if len(proxies) > 0:
         dt = datetime.now() - proxies[0].update_time
-        _proxy_status = '正常' if dt.total_seconds > 3600 else '异常'
+        _proxy_status = '正常' if dt.total_seconds < 3600 else '异常'
     else:
         _proxy_status = '异常'
     context.update({
@@ -276,6 +279,7 @@ def api_search(request):
 @csrf_exempt
 def api_topic_add(request):
     url = request.POST.get('url', '')
+    logging.error(url)
     if url.startswith('http://mp.weixin.qq.com/'):
         data = {
             'kind': KIND_DETAIL,

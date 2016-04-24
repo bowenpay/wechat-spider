@@ -240,7 +240,7 @@ class SeleniumDownloaderBackend(object):
         retry = data.get('retry', 0)
 
         if data.get('kind') == KIND_DETAIL:
-            if retry >= 1000:
+            if retry >= 20:
                 return
             data = {
                 'kind': data['kind'],
