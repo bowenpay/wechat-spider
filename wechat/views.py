@@ -48,7 +48,7 @@ def index(request):
     proxies = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_SUCCESS)[:1]
     if len(proxies) > 0:
         dt = datetime.now() - proxies[0].update_time
-        _proxy_status = '正常' if dt.total_seconds < 3600 else '异常'
+        _proxy_status = '正常' if dt.total_seconds() < 3600 else '异常'
     else:
         _proxy_status = '异常'
     context.update({
