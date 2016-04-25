@@ -105,16 +105,20 @@ class SeleniumDownloaderBackend(object):
         time.sleep(3)
         print browser.title
 
-    def visit_wechat_topic_list(self):
+    def visit_wechat_topic_list(self, wechatid):
         browser = self.browser
         # 找到搜索列表第一个微信号, 点击打开新窗口
-        element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h3")
-        element_wechat.click()
-        time.sleep(3)
-        # 切到当前的文章列表页窗口
-        new_handler = browser.window_handles[-1]
-        browser.switch_to.window(new_handler)
-        time.sleep(3)
+        element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h4/span/label")
+        if element_wechat and element_wechat.text == wechatid:
+            element_wechat.click()
+            time.sleep(3)
+            # 切到当前的文章列表页窗口
+            new_handler = browser.window_handles[-1]
+            browser.switch_to.window(new_handler)
+            time.sleep(3)
+            return True
+        else:
+            return False
 
     def download_wechat_topics(self, wechat_id, process_topic):
         browser = self.browser
@@ -181,8 +185,8 @@ class SeleniumDownloaderBackend(object):
         wechat_id, wechatid = data['wechat_id'], data['wechatid']
         try:
             self.visit_wechat_index(wechatid)
-            self.visit_wechat_topic_list()
-            self.download_wechat_topics(wechat_id, process_topic)
+            if self.visit_wechat_topic_list(wechatid):
+                self.download_wechat_topics(wechat_id, process_topic)
         except Exception as e:
             logger.exception(e)
             self.log_antispider()

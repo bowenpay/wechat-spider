@@ -76,7 +76,8 @@ class Downloader(object):
                         if data.get('kind') == KIND_DETAIL:
                             res = browser.download_wechat_topic_detail(data, process_topic)
                         elif data.get('kind') == KIND_HISTORY:
-                            res = browser.download_wechat_history(data, process_topic)
+                            #res = browser.download_wechat_history(data, process_topic)
+                            pass
                         else:
                             res = browser.download_wechat(data, process_topic)
 
