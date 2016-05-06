@@ -128,7 +128,7 @@ class SeleniumDownloaderBackend(object):
         htmlparser = etree.HTMLParser()
         tree = etree.parse(StringIO(body), htmlparser)
 
-        elems = [item.text for item in tree.xpath("//h4[@class='weui_media_title']")]
+        elems = [item.strip() for item in tree.xpath("//h4[@class='weui_media_title']/text()") if item.strip()]
         hrefs = ['http://mp.weixin.qq.com%s' % item for item in tree.xpath("//h4[@class='weui_media_title']/@hrefs")]
         elems_avatars = tree.xpath("//div[@class='weui_media_box appmsg']/span/@style")
         avatars = [item[21:-1] for item in elems_avatars]
@@ -136,7 +136,7 @@ class SeleniumDownloaderBackend(object):
         abstracts = [item.text.strip() if item.text else '' for item in elems_abstracts]
         links = []
         for idx, item in enumerate(elems[:10]):
-            title = item.strip()
+            title = item
             print title
             if not title:
                 continue
