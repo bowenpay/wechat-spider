@@ -173,7 +173,7 @@ def topic_detail(request, id_):
 @login_required
 def topic_add(request):
     url = request.POST.get('url', '')
-    if url.startswith('http://mp.weixin.qq.com/'):
+    if url.startswith('http://mp.weixin.qq.com/') or url.startswith('https://mp.weixin.qq.com/') :
         data = {
             'kind': KIND_DETAIL,
             'url': url
@@ -280,7 +280,7 @@ def api_search(request):
 def api_topic_add(request):
     url = request.POST.get('url', '')
     logging.error(url)
-    if url.startswith('http://mp.weixin.qq.com/'):
+    if url.startswith('http://mp.weixin.qq.com/') or url.startswith('https://mp.weixin.qq.com/') :
         data = {
             'kind': KIND_DETAIL,
             'url': url
