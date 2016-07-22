@@ -31,6 +31,37 @@ $ cd No1022_Wechat-article-crawler
 $ pip install -r requirements.txt
 ```
 
+在 wechatspider 目录下,添加 `local_settings.py` 文件,配置如下:
+```
+# -*- coding: utf-8 -*-
+CRAWLER_DEBUG = True
+
+# aliyun oss2
+OSS2_CONFIG = {
+    "ACCESS_KEY_ID": "NNV6RHQGNCH3M3yK",
+    "ACCESS_KEY_SECRET": "1e214PQr7xZs9tcbNONF0WKENTfEna",
+    "ENDPOINT": "",
+    "BUCKET_DOMAIN": "oss-cn-hangzhou.aliyuncs.com",
+    "BUCKET_NAME": "tingping",
+    "IMAGES_PATH": "images/",
+    "VIDEOS_PATH": "videos/",
+    "CDN_DOMAIN": "tingping.oss-cn-hangzhou.aliyuncs.com"
+}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': '127.0.0.1',
+        'NAME': 'wechatspider',
+        'USER': 'root',
+        'PASSWORD': '123456',
+        'OPTIONS':{
+            'charset': 'utf8mb4',
+        },
+    }
+}
+```
+
 3) 初始化mysql
 
 a) 安装mysql-server后，记得设置字符为utf8mb4。在my.cnf中设置：
@@ -67,6 +98,11 @@ $ python manage.py migrate
 python manage.py runserver 0.0.0.0:8001
 ```
 访问 http://localhost:8001/。 测试没问题后，参考后面的supervisor脚本启动。
+
+6) 创建超级管理员账号,访问后台
+```
+python manage.py createsuperuser
+```
 
 # 部署nginx
 前期先用nginx将域名www.mydomain.com转发到8001端口。
