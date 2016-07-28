@@ -1,6 +1,11 @@
-1 1 * * * rm -f /var/log/wechatspider/*.log.*
-22 */4 * * * supervisorctl -c /etc/supervisord.conf restart wechatspider_downloader:0
-22 */4 * * * supervisorctl -c /etc/supervisord.conf restart wechatspider_downloader:1
-22 */4 * * * supervisorctl -c /etc/supervisord.conf restart wechatspider_extractor
-22 */4 * * * supervisorctl -c /etc/supervisord.conf restart wechatspider_processor
-22 */4 * * * supervisorctl -c /etc/supervisord.conf restart wechatspider_scheduler
+1 1 * * * ps aux|grep firefox|grep -v grep|xargs kill
+1 1 * * * ps aux|grep Xvfb|grep -v grep|xargs kill
+1 * * * * rm -f /var/log/wechatspider/*.log.*
+40 */3 * * * /usr/bin/supervisorctl -c /etc/supervisord.conf restart wechatspider_downloader:0
+22 */2 * * * /usr/bin/supervisorctl -c /etc/supervisord.conf restart wechatspider_downloader:1
+22 */4 * * * /usr/bin/supervisorctl -c /etc/supervisord.conf restart wechatspider_extractor:0
+22 */4 * * * /usr/bin/supervisorctl -c /etc/supervisord.conf restart wechatspider_extractor:1
+22 */4 * * * /usr/bin/supervisorctl -c /etc/supervisord.conf restart wechatspider_extractor:2
+22 */4 * * * /usr/bin/supervisorctl -c /etc/supervisord.conf restart wechatspider_extractor:3
+22 */4 * * * /usr/bin/supervisorctl -c /etc/supervisord.conf restart wechatspider_processor
+22 */4 * * * /usr/bin/supervisorctl -c /etc/supervisord.conf restart wechatspider_scheduler
