@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'yijingping'
 from wechatspider.util import get_uniqueid
-from wechat.constants import KIND_DETAIL
+from wechat.constants import KIND_DETAIL, KIND_KEYWORD
 from wechat.models import Wechat
 
 class DjangoModelBackend(object):
@@ -17,7 +17,7 @@ class DjangoModelBackend(object):
         if 'wx.qq.com' not in params.get('source'):
             return
         # 存储数据
-        if params.get('kind') == KIND_DETAIL:
+        if params.get('kind') in [KIND_DETAIL, KIND_KEYWORD]:
             params.pop('kind', None)
             params.pop('retry', None)
             # 保存微信号

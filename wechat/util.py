@@ -3,6 +3,9 @@ __author__ = 'yijingping'
 import time
 import urllib2
 import requests
+from lxml.etree import tostring
+from itertools import chain
+
 ip_check_url = 'http://api.ipify.org'
 user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'
 socket_timeout = 3
@@ -98,3 +101,6 @@ def check_wechat(host, port):
     # Return False if no exceptions, proxy_detected=True if proxy detected
     return (False, proxy_detected, time_diff)
 
+
+def stringify_children(node):
+    return "".join([x for x in node.itertext()])

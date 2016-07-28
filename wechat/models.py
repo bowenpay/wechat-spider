@@ -86,3 +86,24 @@ class Proxy(models.Model):
 
     class Meta:
         verbose_name_plural = "访问代理"
+
+
+class Word(models.Model):
+    KIND_KEYWORD = 0
+    #KIND_TOPIC = 1 #
+    KIND_CHOICES = (
+        (KIND_KEYWORD, '关键词'),
+        #(KIND_TOPIC, '话题'),
+    )
+    kind = models.IntegerField(default=KIND_KEYWORD, choices=KIND_CHOICES, verbose_name="类型")
+    text = models.CharField(max_length=100, verbose_name='词')
+    intro = models.TextField(default='', blank=True, verbose_name='简介')
+    frequency = models.IntegerField(default=0, verbose_name='爬取频率, 单位:分钟')
+    next_crawl_time = models.DateTimeField(auto_now_add=True, verbose_name='下次爬取时间')
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+    def __unicode__(self):
+        return '%s %s' % (self.kind, self.text)
+
+    class Meta:
+        verbose_name_plural = "词"

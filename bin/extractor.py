@@ -14,7 +14,7 @@ import json
 from django.conf import settings
 from wechatspider.util import get_redis, get_uniqueid
 from wechat.extractors import XPathExtractor, PythonExtractor, ImageExtractor, VideoExtractor, WechatContentExtractor
-from wechat.constants import KIND_HISTORY, KIND_DETAIL
+from wechat.constants import KIND_HISTORY, KIND_DETAIL, KIND_KEYWORD
 import logging
 logger = logging.getLogger()
 
@@ -300,6 +300,14 @@ class Extractor(object):
 
     def get_detail(self, content, data):
         if data.get('kind') == KIND_DETAIL:
+            result = {
+                "kind": data["kind"],
+                "url": data["url"],
+                "source": data["body"],
+                "avatar": ''
+            }
+            rules = DETAIL_RULES
+        elif data.get('kind') == KIND_KEYWORD:
             result = {
                 "kind": data["kind"],
                 "url": data["url"],

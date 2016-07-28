@@ -14,8 +14,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 from wechatspider.util import get_uniqueid, get_redis
 from wechat.models import Topic
-from wechat.constants import KIND_DETAIL
+from wechat.constants import KIND_DETAIL, KIND_KEYWORD, KIND_NORMAL
 from django.conf import settings
+from .util import stringify_children
 
 import logging
 logger = logging.getLogger()
@@ -105,6 +106,18 @@ class SeleniumDownloaderBackend(object):
         time.sleep(3)
         print browser.title
 
+    def visit_wechat_index_keyword(self, word):
+        browser = self.browser
+        # 访问首页, 输入wchatid, 点击查询
+        browser.get("http://weixin.sogou.com/")
+        print browser.title
+        element_querybox = browser.find_element_by_name('query')
+        element_querybox.send_keys(word, Keys.ARROW_DOWN)
+        element_search_btn = browser.find_element_by_xpath("//input[@value='搜文章']")
+        element_search_btn.click()
+        time.sleep(3)
+        print browser.title
+
     def visit_wechat_topic_list(self, wechatid):
         browser = self.browser
         # 找到搜索列表第一个微信号, 点击打开新窗口
@@ -175,9 +188,71 @@ class SeleniumDownloaderBackend(object):
                     'body': body,
                     'avatar': avatar,
                     'title': title,
-                    'abstract': abstract
+                    'abstract': abstract,
+                    'kind': KIND_NORMAL
                 })
                 time.sleep(randint(1, 5))
+
+
+    def download_wechat_keyword_topics(self, word, process_topic):
+        browser = self.browser
+        js = """ return document.documentElement.innerHTML; """
+        body = browser.execute_script(js)
+
+        htmlparser = etree.HTMLParser()
+        tree = etree.parse(StringIO(body), htmlparser)
+
+        elems = [stringify_children(item).replace('red_beg', '').replace('red_end', '') for item in tree.xpath("//div[@class='txt-box']/h4/a")]
+        hrefs = tree.xpath("//div[@class='txt-box']/h4/a/@href")
+        avatars = tree.xpath("//div[@class='img_box2']/a/img/@src")
+        elems_abstracts = tree.xpath("//div[@class='txt-box']/p")
+        abstracts = [item.text.strip() if item.text else '' for item in elems_abstracts]
+        links = []
+        for idx, item in enumerate(elems[:10]):
+            title = item
+            print title
+            if not title:
+                continue
+            uniqueid = get_uniqueid('%s:%s' % (word, title))
+            try:
+                Topic.objects.get(uniqueid=uniqueid)
+            except Topic.DoesNotExist:
+                #print len(elems), len(hrefs), len(avatars), len(abstracts)
+                print elems, hrefs, avatars, abstracts
+                links.append((title, hrefs[idx], avatars[idx], abstracts[idx]))
+                logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
+        for title, link, avatar, abstract in reversed(links):
+            # 可以访问了
+            browser.get(link)
+            time.sleep(3)
+
+            if 'antispider' in browser.current_url:
+                """被检测出爬虫了"""
+                self.log_antispider()
+                time.sleep(randint(1, 5))
+            else:
+                js = """
+                    var imgs = document.getElementsByTagName('img');
+
+                    for(var i = 0; i < imgs.length; i++) {
+                      var dataSrc = imgs[i].getAttribute('data-src');
+                      if (dataSrc){
+                        imgs[i].setAttribute('src', dataSrc);
+                      }
+                    }
+                    return document.documentElement.innerHTML;
+                """
+                body = browser.execute_script(js)
+                process_topic({
+                    'url': browser.current_url,
+                    'body': body,
+                    'avatar': avatar,
+                    'title': title,
+                    'abstract': abstract,
+                    'kind': KIND_KEYWORD
+                })
+                time.sleep(randint(1, 5))
+
 
     def download_wechat(self, data, process_topic):
         """ 爬取最新文章
@@ -233,6 +308,19 @@ class SeleniumDownloaderBackend(object):
             self.log_antispider()
             self.retry_crawl(data)
 
+
+    def download_wechat_keyword(self, data, process_topic):
+        """ 爬取最新文章
+        """
+        word = data['word']
+        try:
+            self.visit_wechat_index_keyword(word)
+            self.download_wechat_keyword_topics(word, process_topic)
+        except Exception as e:
+            logger.exception(e)
+            self.log_antispider()
+            self.retry_crawl(data)
+
     def log_antispider(self):
         r = get_redis()
         if r.incr(CRAWLER_CONFIG['antispider']) <= 1:
@@ -249,6 +337,14 @@ class SeleniumDownloaderBackend(object):
             data = {
                 'kind': data['kind'],
                 'url': data['url'],
+                'retry': retry + 1
+            }
+        elif data.get('kind') == KIND_KEYWORD:
+            if retry >= 3:
+                return
+            data = {
+                'kind': data['kind'],
+                'word': data['word'],
                 'retry': retry + 1
             }
         else:

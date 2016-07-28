@@ -11,14 +11,14 @@ import django
 django.setup()
 
 import json
-from wechat.models import Wechat
+from wechat.models import Wechat, Word
 from django.conf import settings
 import logging
 logger = logging.getLogger()
 from datetime import datetime, timedelta
 import time
 from wechatspider.util import get_redis
-from wechat.constants import KIND_NORMAL
+from wechat.constants import KIND_NORMAL, KIND_KEYWORD
 
 
 class Scheduler(object):
@@ -36,6 +36,23 @@ class Scheduler(object):
                     'kind': KIND_NORMAL,
                     'wechat_id': item.id,
                     'wechatid': item.wechatid
+                }
+
+                r.lpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))
+
+                # 更新index_rule
+                item.next_crawl_time = now + timedelta(minutes=item.frequency)
+                #item.next_crawl_time = now + timedelta(seconds=item.frequency)
+                item.save()
+
+                logging.debug(data)
+
+            # 获取要抓取的关键词
+            keywords = Word.objects.filter(frequency__gt=0, next_crawl_time__lt=now).order_by('-id')
+            for item in keywords:
+                data = {
+                    'kind': KIND_KEYWORD,
+                    'word': item.text
                 }
 
                 r.lpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))

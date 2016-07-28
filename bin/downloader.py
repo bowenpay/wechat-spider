@@ -16,7 +16,7 @@ from django.conf import settings
 from wechatspider.util import get_redis
 from wechat.proxies import MysqlProxyBackend
 from wechat.downloaders import SeleniumDownloaderBackend
-from wechat.constants import KIND_HISTORY, KIND_DETAIL
+from wechat.constants import KIND_HISTORY, KIND_DETAIL, KIND_KEYWORD
 import logging
 logger = logging.getLogger()
 
@@ -66,6 +66,8 @@ class Downloader(object):
                     def process_topic(topic):
                         if topic.get('kind', None) == KIND_DETAIL:
                             item_data = topic
+                        elif topic.get('kind', None) == KIND_KEYWORD:
+                            item_data = topic
                         else:
                             item_data = topic
                             item_data["wechat_id"] = data["wechat_id"]
@@ -78,6 +80,8 @@ class Downloader(object):
                         elif data.get('kind') == KIND_HISTORY:
                             #res = browser.download_wechat_history(data, process_topic)
                             pass
+                        elif data.get('kind') == KIND_KEYWORD:
+                            res = browser.download_wechat_keyword(data, process_topic)
                         else:
                             res = browser.download_wechat(data, process_topic)
 
