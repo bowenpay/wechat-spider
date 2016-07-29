@@ -113,7 +113,7 @@ def topic_list(request):
     context = {}
     # 文章信息
     params = request.GET.copy()
-    _obj_list = Topic.objects.order_by('-publish_time')
+    _obj_list = Topic.objects.order_by('-id').values('id', 'wechat__id', 'wechat__name', 'avatar', 'title', 'url', 'publish_time', 'words')
 
     paginator = Paginator(_obj_list, 50 )  # Show 10 contacts per page
 
@@ -140,7 +140,7 @@ def wechat_topics(request, id_):
     context = {}
     # 文章信息
     params = request.GET.copy()
-    _obj_list = Topic.objects.filter(wechat=wechat).order_by('-publish_time')
+    _obj_list = Topic.objects.filter(wechat=wechat).order_by('-id').values('id', 'avatar', 'title', 'url', 'publish_time', 'words')
 
     paginator = Paginator(_obj_list, 50 )  # Show 10 contacts per page
 
