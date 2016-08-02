@@ -1,1 +1,29 @@
+{% load staticfiles %}
+<head>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="{% static 'jquery/jquery-1.11.3.min.js' %}"></script>
+</head>
+
+{% load wechat_util %}
+
+<div style="position: fixed; right: 100px; top: 400px; z-index: 200;">
+    <div onclick="chooseAvailable({{ topic.id }}, '可用')" style="width: 100px;">
+        <label>
+            <input class="input-lg" type="checkbox" name="available" id="id_available" {{ topic.available|radio_checked:'可用' }}>
+            可用
+        </label>
+    </div>
+</div>
 {{ topic.source | safe }}
+
+{% block footer-js %}
+    <script>
+        var chooseAvailable = function(topic_id, choose_str){
+            $.post('/wechat/topic/'+topic_id+'/edit/', {'available': choose_str}, function(data){
+                if(data.ret==0){
+                    console.log(data.msg);
+                }
+            });
+        }
+    </script>
+{% endblock %}

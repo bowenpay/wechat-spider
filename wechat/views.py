@@ -113,7 +113,7 @@ def topic_list(request):
     context = {}
     # 文章信息
     params = request.GET.copy()
-    _obj_list = Topic.objects.order_by('-id').values('id', 'wechat__id', 'wechat__name', 'avatar', 'title', 'url', 'publish_time', 'words')
+    _obj_list = Topic.objects.order_by('-id').values('id', 'wechat__id', 'wechat__name', 'avatar', 'title', 'url', 'publish_time', 'available')
 
     paginator = Paginator(_obj_list, 50 )  # Show 10 contacts per page
 
@@ -133,6 +133,32 @@ def topic_list(request):
         "params": params
     })
     return render_to_response('wechat/topic_list.html', {}, context_instance=RequestContext(request, context))
+
+@login_required
+def topic_available_list(request):
+    context = {}
+    # 文章信息
+    params = request.GET.copy()
+    _obj_list = Topic.objects.filter(available='可用').order_by('-id').values('id', 'wechat__id', 'wechat__name', 'avatar', 'title', 'url', 'publish_time', 'available')
+
+    paginator = Paginator(_obj_list, 50 )  # Show 10 contacts per page
+
+    page = request.GET.get('page')
+    try:
+        _objs = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        _objs = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        _objs = paginator.page(paginator.num_pages)
+
+    context.update({
+        "active_nav": "topics_available",
+        "topics": _objs,
+        "params": params
+    })
+    return render_to_response('wechat/topic_available_list.html', {}, context_instance=RequestContext(request, context))
 
 
 def wechat_topics(request, id_):
@@ -162,13 +188,26 @@ def wechat_topics(request, id_):
     })
     return render_to_response('wechat/wechat_topics.html', {}, context_instance=RequestContext(request, context))
 
-
+@csrf_exempt
+@login_required
 def topic_detail(request, id_):
     topic = get_object_or_404(Topic, pk=id_)
     return render_to_response('wechat/topic_detail.html', {}, context_instance=RequestContext(request, {
         "topic": topic
     }))
 
+@csrf_exempt
+@login_required
+def topic_edit(request, id_):
+    topic = get_object_or_404(Topic, pk=id_)
+    if request.method == 'POST':
+        available = request.POST.get('available')
+        topic.available = available
+        topic.save()
+        return JsonResponse({
+            'ret': 0,
+            'msg': available
+        })
 
 @login_required
 def topic_add(request):
