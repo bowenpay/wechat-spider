@@ -44,13 +44,13 @@ register.inclusion_tag('paginator.html', takes_context=True)(paginator)
 
 @register.filter
 def update_page(params, page):
-    res = params or {}
+    res = copy((params or {}))
     res['page'] = page
     return res
 
 @register.filter
 def update_status(params, value):
-    res = params or {}
+    res = copy((params or {}))
     res['status'] = value
     return res
 
