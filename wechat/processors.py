@@ -30,6 +30,7 @@ class DjangoModelBackend(object):
                 "name": name,
                 "intro": intro,
                 "qrcode": qrcode,
+                "status": Wechat.STATUS_DISABLE
             })
             # 如果微信号状态为已删除,则不保存这篇文章
             if wechat.status == Wechat.STATUS_DELETE:

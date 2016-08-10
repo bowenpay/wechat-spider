@@ -108,7 +108,7 @@ class Word(models.Model):
     kind = models.IntegerField(default=KIND_KEYWORD, choices=KIND_CHOICES, verbose_name="类型")
     text = models.CharField(max_length=100, verbose_name='词')
     intro = models.TextField(default='', blank=True, verbose_name='简介')
-    frequency = models.IntegerField(default=0, verbose_name='爬取频率, 单位:分钟')
+    frequency = models.IntegerField(default=100, verbose_name='爬取频率, 单位:分钟')
     next_crawl_time = models.DateTimeField(auto_now_add=True, verbose_name='下次爬取时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
