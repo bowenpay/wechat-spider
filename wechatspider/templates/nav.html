@@ -15,8 +15,9 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li {% ifequal active_nav "wechats" %}class="active"{% endifequal %}><a href="{% url 'wechat.index' %}">公众号<span class="sr-only">(current)</span></a></li>
+        <li {% ifequal active_nav "keywords" %}class="active"{% endifequal %}><a href="{% url 'wechat.keywords_list' %}">关键词</a></li>
         <li {% ifequal active_nav "topics" %}class="active"{% endifequal %}><a href="{% url 'wechat.topic_list' %}">最新文章</a></li>
-          <li {% ifequal active_nav "topics_available" %}class="active"{% endifequal %}><a href="{% url 'wechat.topic_available_list' %}">可用项目</a></li>
+        <li {% ifequal active_nav "topics_available" %}class="active"{% endifequal %}><a href="{% url 'wechat.topic_available_list' %}">可用项目</a></li>
 
       </ul>
       {% if downloader >= 0 %}

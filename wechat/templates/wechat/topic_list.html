@@ -32,6 +32,7 @@
               <th>公众号</th>
               <th>时间</th>
               <th>是否可用</th>
+              <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;操作&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
             </tr>
           </thead>
           <tbody>
@@ -44,6 +45,13 @@
               <td><a target="_blank" href="{% url 'wechat.wechat_topics' item.wechat__id %}">{{ item.wechat__name}}</a></td>
               <td>{{ item.publish_time}}</td>
               <td>{{ item.available }}</td>
+              <td>
+                {% if item.wechat__status == 2 %}
+                  公众号已删除
+                {% else %}
+                  <a href="{% url 'wechat.wechat_delete' item.wechat__id %}?next={{ request.get_full_path }}">删除公众号</a>
+                {% endif %}
+              </td>
             </tr>
           {% endfor %}
           </tbody>

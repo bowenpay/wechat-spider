@@ -9,7 +9,7 @@ from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import render_to_response, get_object_or_404, redirect, HttpResponseRedirect
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -17,7 +17,7 @@ from django.conf import settings
 from wechat.constants import KIND_DETAIL
 from wechatspider.util import get_redis, login_required
 from .forms import WechatForm, WechatConfigForm
-from .models import Wechat, Topic, Proxy
+from .models import Wechat, Topic, Proxy, Word
 from .extractors import download_to_oss
 
 CRAWLER_CONFIG = settings.CRAWLER_CONFIG
@@ -29,9 +29,13 @@ logging.basicConfig()
 def index(request):
     context = {}
     params = request.GET.copy()
-    _obj_list = Wechat.objects.filter().order_by('-id')
+    status = params.get('status', None)
+    if status is None:
+        _obj_list = Wechat.objects.filter().order_by('-id')
+    else:
+        _obj_list = Wechat.objects.filter(status=status).order_by('-id')
 
-    paginator = Paginator(_obj_list, 50)  # Show 20 contacts per page
+    paginator = Paginator(_obj_list, 5)  # Show 20 contacts per page
 
     page = request.GET.get('page')
     try:
@@ -99,6 +103,10 @@ def edit(request, id_):
             obj = form.save(commit=False)
             if obj.frequency > 0:
                 obj.next_crawl_time = datetime.now()
+            else:
+                print obj.status
+                if obj.status == Wechat.STATUS_DEFAULT:
+                    obj.status = Wechat.STATUS_DISABLE
             obj.save()
             messages.success(request, '保存成功.')
             return redirect(reverse('wechat.edit', kwargs={"id_": id_}))
@@ -109,11 +117,20 @@ def edit(request, id_):
 
 
 @login_required
+def wechat_delete(request, id_):
+    wechat = get_object_or_404(Wechat, pk=id_)
+    wechat.status = Wechat.STATUS_DELETE
+    wechat.save()
+    next_page = request.GET.get('next')
+    return redirect(next_page)
+
+
+@login_required
 def topic_list(request):
     context = {}
     # 文章信息
     params = request.GET.copy()
-    _obj_list = Topic.objects.order_by('-publish_time').values('id', 'wechat__id', 'wechat__name', 'avatar', 'title', 'url', 'publish_time', 'available')
+    _obj_list = Topic.objects.order_by('-publish_time').values('id', 'wechat__id', 'wechat__name', 'wechat__status', 'avatar', 'title', 'url', 'publish_time', 'available')
 
     paginator = Paginator(_obj_list, 50 )  # Show 10 contacts per page
 
@@ -273,6 +290,34 @@ def search_wechat(query):
         })
 
     return wechats
+
+
+
+@login_required
+def keywords_list(request):
+    context = {}
+    # 文章信息
+    params = request.GET.copy()
+    _obj_list = Word.objects.order_by('-id')
+
+    paginator = Paginator(_obj_list, 50 )  # Show 10 contacts per page
+
+    page = request.GET.get('page')
+    try:
+        _objs = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        _objs = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        _objs = paginator.page(paginator.num_pages)
+
+    context.update({
+        "active_nav": "keywords",
+        "keywords": _objs,
+        "params": params
+    })
+    return render_to_response('wechat/keywords_list.html', {}, context_instance=RequestContext(request, context))
 
 
 @csrf_exempt

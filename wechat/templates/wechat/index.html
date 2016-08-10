@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load paginator %}
 {% load staticfiles %}
-
 {% block main-content %}
 
 <div class="row">
@@ -51,6 +50,7 @@
     <div class="topics panel panel-default">
       <div class="panel-heading">
           公众号列表
+          <span class="pull-right"><a href="{{ params | remove_key:'status' | gen_get_params }}">所有</a> | <a href="{{ params | update_status:0 | gen_get_params }}">活跃</a> | <a href="{{ params | update_status:1 | gen_get_params }}">已禁用</a> | <a href="{{ params | update_status:2 | gen_get_params }}">已删除</a></span>
       </div>
       <div class="panel-body">
         <table class="table table-striped table-hover wechat-table">
@@ -64,11 +64,12 @@
               <th>最近1天文章</th>
               <th>最近1周</th>
               <th>文章总数</th>
+              <th>操作</th>
             </tr>
           </thead>
           <tbody>
           {% for item in wechats %}
-            <tr>
+            <tr class="{% if item.status == 2 %}text-delete{% endif %}{% if item.status == 1 %}text-disable{% endif %}">
               <td><a href="{% url 'wechat.edit' item.id %}">{{ item.id}}</a></td>
               <td><img src="{{ item.avatar | default:'/static/web/images/touxiang.jpg' }}" class="avatar-list"></td>
               <td><h5><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.name}}</a></h5>
@@ -79,6 +80,13 @@
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.last_day_topics_count}}</a></td>
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.last_week_topics_count}}</a></td>
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.total_topics_count}}</a></td>
+              <td>
+                <a href="{% url 'wechat.wechat_topics' item.id %}">已爬取文章</a><br/>
+                <a target="_blank" href="http://weixin.sogou.com/weixin?type=1&query={{ item.wechatid }}&ie=utf8">源文章列表</a><br/>
+                <a href="/admin/wechat/wechat/{{ item.id }}/">编辑</a> |
+                <a href="{% url 'wechat.wechat_delete' item.id %}?next={{ request.get_full_path }}">删除</a>
+              </td>
+
             </tr>
           {% endfor %}
           </tbody>

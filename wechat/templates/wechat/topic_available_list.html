@@ -3,20 +3,6 @@
 {% block main-content %}
 <div class="row">
   <div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-body">
-        <form class="simple_form" action="{% url 'wechat.topic_add' %}" method="post">
-        {% csrf_token %}
-          <div class="form-group">
-              <input id="id_url" type="url" class="form-control pull-left" style="width: 90%;" name="url" required placeholder="添加新文章, 文章链接: http://mp.weixin.qq.com/s?__biz=...">
-
-              <button type="submit" class="btn btn-default pull-right">
-                添加
-              </button>
-          </div>
-        </form>
-      </div>
-    </div>
     <div class="topics panel panel-default">
       <div class="panel-heading">
         文章列表

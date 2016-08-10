@@ -74,9 +74,20 @@ hr {
 #start, #end {
     text-align: center;
 }
+.wechat-table th {
+    white-space: nowrap;
+}
 .wechat-table th,.wechat-table td {
     vertical-align: middle !important;
 }
 .wechat-table .td-center {
     text-align: center;
+}
+
+.text-delete, .text-delete a {
+    text-decoration: line-through;
+    color: grey!important;
+}
+.text-disable, .text-disable a {
+    color: grey!important;
 }

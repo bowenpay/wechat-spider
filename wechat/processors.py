@@ -31,6 +31,10 @@ class DjangoModelBackend(object):
                 "intro": intro,
                 "qrcode": qrcode,
             })
+            # 如果微信号状态为已删除,则不保存这篇文章
+            if wechat.status == Wechat.STATUS_DELETE:
+                return
+
             # 保存文章
             params['wechat_id'] = wechat.id
             params['uniqueid'] = get_uniqueid('%s:%s' % (params['wechat_id'], params['title']))

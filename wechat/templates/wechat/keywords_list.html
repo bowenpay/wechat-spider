@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load paginator %}
+{% block main-content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="topics panel panel-default">
+      <div class="panel-heading">
+        关键词列表
+        <span class="pull-right"><a target="_blank" href="/admin/wechat/word/add/">新增关键词</a></span>
+      </div>
+      <div class="panel-body">
+        <table class="table table-striped table-hover wechat-table">
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>关键词</th>
+              <th>简介</th>
+              <th>爬取频率</th>
+              <th>下次爬取时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for item in keywords %}
+            <tr>
+              <td>{{ item.id }}</td>
+              <td>{{ item.text }}</td>
+              <td>{{ item.intro }}</td>
+              <td>{{ item.frequency}}</td>
+              <td>{% if item.frequency > 0 %}{{ item.next_crawl_time}}{% else %}N/A{% endif %}</td>
+              <td><div><a target="_blank" href="/admin/wechat/word/{{ item.id }}/">编辑</a> | <a target="_blank" href="/admin/wechat/word/{{ item.id }}/delete/">删除</a></div></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-footer clearfix">
+        {% paginator keywords %}
+      </div>
+    </div><!--.topics-->
+
+  </div>
+</div>
+{% endblock %}

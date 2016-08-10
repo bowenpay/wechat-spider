@@ -30,7 +30,7 @@ class Scheduler(object):
         while True:
             now = datetime.now()
             # 获取要抓取的公众号
-            wechats = Wechat.objects.filter(frequency__gt=0, next_crawl_time__lt=now).order_by('-id')
+            wechats = Wechat.objects.filter(frequency__gt=0, next_crawl_time__lt=now, status=Wechat.STATUS_DEFAULT).order_by('-id')
             for item in wechats:
                 data = {
                     'kind': KIND_NORMAL,

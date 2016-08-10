@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'yijingping'
+from copy import copy
 from django import template
 
 register = template.Library()
@@ -47,6 +48,11 @@ def update_page(params, page):
     res['page'] = page
     return res
 
+@register.filter
+def update_status(params, value):
+    res = params or {}
+    res['status'] = value
+    return res
 
 @register.filter
 def gen_get_params(params):
@@ -56,3 +62,8 @@ def gen_get_params(params):
 
     return '?' + '&'.join(res)
 
+@register.filter
+def remove_key(params, key):
+    res = copy((params or {}))
+    res.pop(key, None)
+    return res
