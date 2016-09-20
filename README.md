@@ -1,11 +1,49 @@
 # 微信爬虫
-一个爬取微信公众号文章的爬虫
+一个爬取微信公众号文章的爬虫。 
+
+# 微信爬虫的由来
+零分贝是一家致力于解决中国5000万贫困人口与社会公益组织的对接问题的公益机构。
+
+我们通过国家和地方政府的“建档立卡”系统，获取到了一手的贫困户数据，目前有100万左右，总数为5000万，目前每个月都在增长。
+
+为了帮助这部分贫困户对接公益机构，我写了这个微信爬虫，从微信公众号发布的文章中上找出最新的公益项目。
+
+这种找项目的方式的可行性，我们还在试验中。 
+
+起初，为了快速上线，本爬虫的代码是基于我的另一个 [通用爬虫项目](https://github.com/yijingping/unicrawler) 开发的，我也希望任何对本项目感兴趣的人联系我，与我一同改进这个项目。
+
+联系方式：在本项目中新建一个issue留言
+
+# 界面预览
+
+1） 要爬取得微信公众号列表
+
+![](docs/images/1.jpg?raw=true)
+
+2） 要爬取得文章关键字列表
+
+![](docs/images/2.png?raw=true)
+
+3） 已经爬取的微信文章
+
+![](docs/images/3.png?raw=true)
+
+4） 查看文章，并标记是否可用
+
+![](docs/images/4.jpg?raw=true)
+
+5） 控制爬取进程数
+
+![](docs/images/5.png?raw=true)
+
 
 # 安装
 
 1）python环境, 检查python的版本，是否为2.7.x，如果不是，安装2.7.6。
 
 centos 6.x 升级python2.6到python2.7,参考教程 http://ruiaylin.github.io/2014/12/12/python%20update/
+
+如果是centos 7.x, 默认就是python2.7,不用升级
 
 2）安装依赖包, clone代码
 安装Mysql-python依赖
@@ -26,8 +64,8 @@ yum install firefox
 
 clone代码,安装依赖python库
 ```
-$ git clone https://git.coding.net/xtwxx/No1022_Wechat-article-crawler.git
-$ cd No1022_Wechat-article-crawler
+$ git clone https://github.com/bowenpay/wechat-spider.git
+$ cd wechat-spider
 $ pip install -r requirements.txt
 ```
 
@@ -36,16 +74,16 @@ $ pip install -r requirements.txt
 # -*- coding: utf-8 -*-
 CRAWLER_DEBUG = True
 
-# aliyun oss2
+# aliyun oss2, 可以将图片和视频存储到阿里云，也可以选择不存储，爬取速度会更快。
 OSS2_CONFIG = {
-    "ACCESS_KEY_ID": "NNV6RHQGNCH3M3yK",
-    "ACCESS_KEY_SECRET": "1e214PQr7xZs9tcbNONF0WKENTfEna",
+    "ACCESS_KEY_ID": "XXXXXXXXXXXXXX",
+    "ACCESS_KEY_SECRET": "YYYYYYYYYYYYYYYYYYYYYY",
     "ENDPOINT": "",
     "BUCKET_DOMAIN": "oss-cn-hangzhou.aliyuncs.com",
-    "BUCKET_NAME": "tingping",
+    "BUCKET_NAME": "XXXXX",
     "IMAGES_PATH": "images/",
     "VIDEOS_PATH": "videos/",
-    "CDN_DOMAIN": "tingping.oss-cn-hangzhou.aliyuncs.com"
+    "CDN_DOMAIN": "XXXXXX.oss-cn-hangzhou.aliyuncs.com"
 }
 
 DATABASES = {
@@ -112,3 +150,9 @@ python manage.py createsuperuser
 
 # 部署crontab脚本
 参考文件 `crontab`
+
+# 系统使用文档
+
+
+# API接口文档
+
