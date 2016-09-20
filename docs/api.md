@@ -4,7 +4,7 @@
 # 添加/修改公众号
 功能: 输入需要爬取的公众号id和爬取频率,如果公众号不存在就添加,如果已经存在就更新爬取频率.同事更新公众号信息.包括头像,描述,二维码等.
 
-URL: http://121.199.46.179:8090/api/wechat/add/
+URL: http://127.0.0.1:8090/api/wechat/add/
 
 方法: POST
 
@@ -37,7 +37,7 @@ frequency:  爬取频率, 正整数, 单位是分钟
 
 功能: 输入需要爬取的文章URL.将文章加入爬取队列优先爬取.同事获取相关公众号信息,并将爬取频率设置为0
 
-URL: http://121.199.46.179:8090/api/wechat/topic/add/
+URL: http://127.0.0.1:8090/api/wechat/topic/add/
 
 方法: POST
 
@@ -68,7 +68,7 @@ url: 文章连接,如http://mp.weixin.qq.com/s?__biz=MjM5NDg2NjA4MQ==&mid=402566
 
 功能: 输入公众号名称或者id,返回对应的列表.
 
-URL: http://121.199.46.179:8090/api/wechat/search?query=财经
+URL: http://127.0.0.1:8090/api/wechat/search?query=财经
 
 方法: GET
 
