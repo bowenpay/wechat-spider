@@ -98,11 +98,13 @@ DATABASES = {
         },
     }
 }
+
+SECRET_KEY="xxxxxx"
 ```
 
 3) 初始化mysql
 
-a) 安装mysql-server后，记得设置字符为utf8mb4。在my.cnf中设置：
+a) 安装mysql-server后([How to install in Centos](https://www.linode.com/docs/databases/mysql/how-to-install-mysql-on-centos-6))，记得设置字符为utf8mb4。在 `~/.my.cnf` 中设置：
 
 ```
 [client]
@@ -120,6 +122,8 @@ collation-server = utf8mb4_unicode_ci
 b) 重启数据库
 
 c) 创建数据库wechatspider
+
+如果遇到错误说 `"utf8mb4" charset is not compiled blabla...`, 打开`/usr/share/mysql/charsets/Index.xml` 在 `<charset name="utf8mb4">...</charset>` 后插入 [这段代码](https://www.zybuluo.com/xy0/note/509722)
 
 ```
 mysql> CREATE DATABASE `wechatspider` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -141,6 +145,18 @@ python manage.py runserver 0.0.0.0:8001
 ```
 python manage.py createsuperuser
 ```
+
+7) 安装和运行Redis 
+
+```shell
+$ wget http://download.redis.io/releases/redis-2.8.3.tar.gz
+$ tar xzvf redis-2.8.3.tar.gz
+$ cd redis-2.8.3
+$ make
+$ make install
+$ redis-server
+```
+
 
 # 部署nginx
 前期先用nginx将域名www.mydomain.com转发到8001端口。
