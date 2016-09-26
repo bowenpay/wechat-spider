@@ -74,8 +74,9 @@ def add(request):
         form = WechatForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
-            obj.avatar = download_to_oss(obj.avatar, settings.OSS2_CONFIG["IMAGES_PATH"])
-            obj.qrcode = download_to_oss(obj.qrcode, settings.OSS2_CONFIG["IMAGES_PATH"])
+            if settings.OSS2_ENABLE:
+                obj.avatar = download_to_oss(obj.avatar, settings.OSS2_CONFIG["IMAGES_PATH"])
+                obj.qrcode = download_to_oss(obj.qrcode, settings.OSS2_CONFIG["IMAGES_PATH"])
             obj.save()
             messages.success(request, '保存成功.')
             return redirect(reverse('wechat.index'))
@@ -398,8 +399,12 @@ def api_add(request):
         else:
             info = wechats[0]
 
-        avatar = download_to_oss(info.get('avatar'), settings.OSS2_CONFIG["IMAGES_PATH"])
-        qrcode = download_to_oss(info.get('qrcode'), settings.OSS2_CONFIG["IMAGES_PATH"])
+        if settings.OSS2_ENABLE:
+            avatar = download_to_oss(info.get('avatar'), settings.OSS2_CONFIG["IMAGES_PATH"])
+            qrcode = download_to_oss(info.get('qrcode'), settings.OSS2_CONFIG["IMAGES_PATH"])
+        else:
+            avatar = info.get('avatar')
+            qrcode = info.get('qrcode')
 
         obj, created = Wechat.objects.update_or_create(wechatid=wechatid, defaults={
             'name': info.get('name', ''),

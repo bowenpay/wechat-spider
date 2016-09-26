@@ -56,7 +56,7 @@ yum install python-devel mysql-devel gcc
 yum install libxslt-devel libxml2-devel
 ```
 
-安装浏览器环境 selenium依赖
+安装浏览器环境 selenium依赖.(如果是mac环境，仅需安装firefox， 但确保版本是 firefox 36.0，使用最新的版本会报错)
 ```
 yum install xorg-x11-server-Xvfb
 yum install firefox
@@ -72,19 +72,23 @@ $ pip install -r requirements.txt
 在 wechatspider 目录下,添加 `local_settings.py` 文件,配置如下:
 ```
 # -*- coding: utf-8 -*-
+
+SECRET_KEY="xxxxxx"
+
 CRAWLER_DEBUG = True
 
-# aliyun oss2, 可以将图片和视频存储到阿里云，也可以选择不存储，爬取速度会更快。
-OSS2_CONFIG = {
-    "ACCESS_KEY_ID": "XXXXXXXXXXXXXX",
-    "ACCESS_KEY_SECRET": "YYYYYYYYYYYYYYYYYYYYYY",
-    "ENDPOINT": "",
-    "BUCKET_DOMAIN": "oss-cn-hangzhou.aliyuncs.com",
-    "BUCKET_NAME": "XXXXX",
-    "IMAGES_PATH": "images/",
-    "VIDEOS_PATH": "videos/",
-    "CDN_DOMAIN": "XXXXXX.oss-cn-hangzhou.aliyuncs.com"
-}
+# aliyun oss2, 可以将图片和视频存储到阿里云，也可以选择不存储，爬取速度会更快。 默认不存储。
+#OSS2_ENABLE = True
+#OSS2_CONFIG = {
+#    "ACCESS_KEY_ID": "XXXXXXXXXXXXXX",
+#    "ACCESS_KEY_SECRET": "YYYYYYYYYYYYYYYYYYYYYY",
+#    "ENDPOINT": "",
+#    "BUCKET_DOMAIN": "oss-cn-hangzhou.aliyuncs.com",
+#    "BUCKET_NAME": "XXXXX",
+#    "IMAGES_PATH": "images/",
+#    "VIDEOS_PATH": "videos/",
+#    "CDN_DOMAIN": "XXXXXX.oss-cn-hangzhou.aliyuncs.com"
+#}
 
 DATABASES = {
     'default': {
@@ -99,34 +103,15 @@ DATABASES = {
     }
 }
 
-SECRET_KEY="xxxxxx"
 ```
 
-3) 初始化mysql
+3) 初始化mysql数据库
 
-a) 安装mysql-server后([How to install in Centos](https://www.linode.com/docs/databases/mysql/how-to-install-mysql-on-centos-6))，记得设置字符为utf8mb4。在 `~/.my.cnf` 中设置：
+创建数据库wechatspider，默认采用utf8编码。（如果系统支持，可以采用utf8mb4，以兼容emoji字符）
 
-```
-[client]
-default-character-set = utf8mb4
-
-[mysql]
-default-character-set = utf8mb4
-
-[mysqld]
-character-set-client-handshake = FALSE
-character-set-server = utf8mb4
-collation-server = utf8mb4_unicode_ci
-```
-
-b) 重启数据库
-
-c) 创建数据库wechatspider
-
-如果遇到错误说 `"utf8mb4" charset is not compiled blabla...`, 打开`/usr/share/mysql/charsets/Index.xml` 在 `<charset name="utf8mb4">...</charset>` 后插入 [这段代码](https://www.zybuluo.com/xy0/note/509722)
 
 ```
-mysql> CREATE DATABASE `wechatspider` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+mysql> CREATE DATABASE `wechatspider` CHARACTER SET utf8;
 ```
 
 d) 初始化表
@@ -134,14 +119,15 @@ d) 初始化表
 $ python manage.py migrate
 ```
 
-5）运行
+5）启动网站
 
 ```
 python manage.py runserver 0.0.0.0:8001
 ```
-访问 http://localhost:8001/。 测试没问题后，参考后面的supervisor脚本启动。
+访问 http://localhost:8001/。 
 
-6) 创建超级管理员账号,访问后台
+
+6) 创建超级管理员账号,访问后台，并配置要爬取的公众号和关键字
 ```
 python manage.py createsuperuser
 ```
@@ -157,6 +143,16 @@ $ make install
 $ redis-server
 ```
 
+8）启动爬虫
+
+```shell
+$ python bin/scheduler.py
+$ python bin/downloader.py
+$ python bin/extractor.py
+$ python bin/processor.py
+```
+
+以上步骤执行成功，并能爬取文章后。可以参考以下部分配置生产环境。
 
 # 部署nginx
 前期先用nginx将域名www.mydomain.com转发到8001端口。

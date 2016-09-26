@@ -24,8 +24,6 @@ logger = logging.getLogger()
 CRAWLER_CONFIG = settings.CRAWLER_CONFIG
 
 
-
-
 class SeleniumDownloaderBackend(object):
     headers = [
         {
@@ -60,6 +58,7 @@ class SeleniumDownloaderBackend(object):
             logging.exception(e)
 
     def get_display(self):
+        """ 获取操作系统桌面窗口 """
         if platform.system() != 'Darwin':
             # 不是mac系统, 启动窗口
             display = Display(visible=0, size=(1024, 768))
@@ -69,9 +68,10 @@ class SeleniumDownloaderBackend(object):
         return display
 
     def get_browser(self, proxy):
+        """ 启动并返回浏览器，使用firefox """
         # 启动浏览器
-        # 禁止加载image
         firefox_profile = webdriver.FirefoxProfile()
+        # 禁止加载image
         #firefox_profile.set_preference('permissions.default.stylesheet', 2)
         #firefox_profile.set_preference('permissions.default.image', 2)
         #firefox_profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
@@ -83,7 +83,7 @@ class SeleniumDownloaderBackend(object):
                 'httpProxy': myProxy,
                 'ftpProxy': myProxy,
                 'sslProxy': myProxy,
-            'noProxy':''})
+                'noProxy': ''})
 
             browser = webdriver.Firefox(firefox_profile=firefox_profile, proxy=ff_proxy)
         else:
@@ -94,9 +94,72 @@ class SeleniumDownloaderBackend(object):
     def download(self, url):
         pass
 
-    def visit_wechat_index(self, wechatid):
+    def download_wechat(self, data, process_topic):
+        """ 根据微信号最新文章 """
+        wechat_id, wechatid = data['wechat_id'], data['wechatid']
+        try:
+            self.visit_wechat_index(wechatid)
+            if self.visit_wechat_topic_list(wechatid):
+                self.download_wechat_topics(wechat_id, process_topic)
+        except Exception as e:
+            logger.exception(e)
+            self.log_antispider()
+            self.retry_crawl(data)
+
+    def download_wechat_keyword(self, data, process_topic):
+        """ 爬取关键词爬取最新文章 """
+        word = data['word']
+        try:
+            self.visit_wechat_index_keyword(word)
+            self.download_wechat_keyword_topics(word, process_topic)
+        except Exception as e:
+            logger.exception(e)
+            self.log_antispider()
+            self.retry_crawl(data)
+
+    def download_wechat_topic_detail(self, data, process_topic):
+        """ 根据url爬取文章的详情页 """
+        url = data['url']
         browser = self.browser
-        # 访问首页, 输入wchatid, 点击查询
+        try:
+            browser.get(url)
+            time.sleep(3)
+
+            if 'antispider' in browser.current_url:
+                """被检测出爬虫了"""
+                self.log_antispider()
+                self.retry_crawl(data)
+                time.sleep(randint(1, 5))
+            else:
+                js = """
+                    var imgs = document.getElementsByTagName('img');
+
+                    for(var i = 0; i < imgs.length; i++) {
+                      var dataSrc = imgs[i].getAttribute('data-src');
+                      if (dataSrc){
+                        imgs[i].setAttribute('src', dataSrc);
+                      }
+                    }
+                    return document.documentElement.innerHTML;
+                """
+                body = browser.execute_script(js)
+                process_topic({
+                    'url': browser.current_url,
+                    'body': body,
+                    'avatar': '',
+                    'title': '',
+                    'kind': KIND_DETAIL
+                })
+                time.sleep(randint(1, 5))
+
+        except Exception as e:
+            logger.exception(e)
+            self.log_antispider()
+            self.retry_crawl(data)
+
+    def visit_wechat_index(self, wechatid):
+        """ 访问微信首页，输入微信id，点击搜公众号 """
+        browser = self.browser
         browser.get("http://weixin.sogou.com/")
         print browser.title
         element_querybox = browser.find_element_by_name('query')
@@ -107,8 +170,8 @@ class SeleniumDownloaderBackend(object):
         print browser.title
 
     def visit_wechat_index_keyword(self, word):
+        """ 访问微信首页，输入关键词，点击搜文章 """
         browser = self.browser
-        # 访问首页, 输入wchatid, 点击查询
         browser.get("http://weixin.sogou.com/")
         print browser.title
         element_querybox = browser.find_element_by_name('query')
@@ -119,6 +182,7 @@ class SeleniumDownloaderBackend(object):
         print browser.title
 
     def visit_wechat_topic_list(self, wechatid):
+        """ 找到微信号，并点击进入微信号的文章列表页面 """
         browser = self.browser
         # 找到搜索列表第一个微信号, 点击打开新窗口
         element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h4/span/label")
@@ -134,6 +198,7 @@ class SeleniumDownloaderBackend(object):
             return False
 
     def download_wechat_topics(self, wechat_id, process_topic):
+        """ 在微信号的文章列表页面，逐一点击打开每一篇文章，并爬取 """
         browser = self.browser
         js = """ return document.documentElement.innerHTML; """
         body = browser.execute_script(js)
@@ -193,8 +258,8 @@ class SeleniumDownloaderBackend(object):
                 })
                 time.sleep(randint(1, 5))
 
-
     def download_wechat_keyword_topics(self, word, process_topic):
+        """ 在关键词下的文章列表页面，逐一点击打开每一篇文章，并爬取 """
         browser = self.browser
         js = """ return document.documentElement.innerHTML; """
         body = browser.execute_script(js)
@@ -253,81 +318,14 @@ class SeleniumDownloaderBackend(object):
                 })
                 time.sleep(randint(1, 5))
 
-
-    def download_wechat(self, data, process_topic):
-        """ 爬取最新文章
-        """
-        wechat_id, wechatid = data['wechat_id'], data['wechatid']
-        try:
-            self.visit_wechat_index(wechatid)
-            if self.visit_wechat_topic_list(wechatid):
-                self.download_wechat_topics(wechat_id, process_topic)
-        except Exception as e:
-            logger.exception(e)
-            self.log_antispider()
-            self.retry_crawl(data)
-
-    def download_wechat_topic_detail(self, data, process_topic):
-        """ 根据url爬取文章的详情页
-        """
-        url = data['url']
-        browser = self.browser
-        try:
-            browser.get(url)
-            time.sleep(3)
-
-            if 'antispider' in browser.current_url:
-                """被检测出爬虫了"""
-                self.log_antispider()
-                self.retry_crawl(data)
-                time.sleep(randint(1, 5))
-            else:
-                js = """
-                    var imgs = document.getElementsByTagName('img');
-
-                    for(var i = 0; i < imgs.length; i++) {
-                      var dataSrc = imgs[i].getAttribute('data-src');
-                      if (dataSrc){
-                        imgs[i].setAttribute('src', dataSrc);
-                      }
-                    }
-                    return document.documentElement.innerHTML;
-                """
-                body = browser.execute_script(js)
-                process_topic({
-                    'url': browser.current_url,
-                    'body': body,
-                    'avatar': '',
-                    'title': '',
-                    'kind': KIND_DETAIL
-                })
-                time.sleep(randint(1, 5))
-
-        except Exception as e:
-            logger.exception(e)
-            self.log_antispider()
-            self.retry_crawl(data)
-
-
-    def download_wechat_keyword(self, data, process_topic):
-        """ 爬取最新文章
-        """
-        word = data['word']
-        try:
-            self.visit_wechat_index_keyword(word)
-            self.download_wechat_keyword_topics(word, process_topic)
-        except Exception as e:
-            logger.exception(e)
-            self.log_antispider()
-            self.retry_crawl(data)
-
     def log_antispider(self):
+        """ 记录1小时内的被禁爬的数量 """
         r = get_redis()
         if r.incr(CRAWLER_CONFIG['antispider']) <= 1:
             r.expire(CRAWLER_CONFIG['antispider'], 3600)
 
-
     def retry_crawl(self, data):
+        """ 如果被禁爬，重试 """
         r = get_redis()
         retry = data.get('retry', 0)
 
