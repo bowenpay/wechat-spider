@@ -164,16 +164,22 @@ class WechatContentExtractor(BaseExtractor):
     def extract(self):
         res = self.data
         try:
+            # 去掉图片蒙版
+            res = res.replace('var occupyImg = ', '')
             bs=BeautifulSoup(res)
             # 去掉投票的iframe
             vote = bs.find('span', {'class':'vote_area'})
             if vote:
                 vote.replace_with('')
-            # 将图片和视频的宽高变为auto
+            # 将图片和视频的宽高变为auto，src替换为data-src
             imgs = bs.select('img')
             for x in imgs:
                 if x.get('style'):
                     x['style'] = re.sub(r'(\w+px)', 'auto', x['style'])
+
+                if x.get('data-src'):
+                    x['src'] = x.get('data-src')
+
             # 将视频的宽高设置为auto
             videos = bs.find_all('iframe', {'class': 'video_iframe'})
             for item in videos:

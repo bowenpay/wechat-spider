@@ -92,6 +92,32 @@ NORMAL_RULES = [
         "data":"from datetime import datetime;out_val = str(datetime.now());"
       }
     ]
+  },
+  {
+    "key": "read_num",
+    "rules": [
+      {
+        "kind": "xpath",
+        "data": "//span[@id='sg_readNum3']/text()"
+      },
+      {
+        "kind": "python",
+        "data": "out_val=sum([int(item.strip()) for item in in_val])"
+      }
+    ]
+  },
+  {
+    "key": "like_num",
+    "rules": [
+      {
+        "kind":"xpath",
+        "data":"//span[@id='sg_likeNum3']/text()"
+      },
+      {
+        "kind":"python",
+        "data":"out_val=sum([int(item.strip()) for item in in_val])"
+      }
+    ]
   }
 ]
 
@@ -209,7 +235,7 @@ DETAIL_RULES = [
       },
       {
         "kind":"python",
-        "data":"out_val=in_val[0] if in_val else '';"
+        "data":"out_val=in_val[0] if len(in_val) == 2 else '';"
       }
     ]
   },
@@ -235,7 +261,7 @@ DETAIL_RULES = [
       },
       {
         "kind":"python",
-        "data":"out_val=in_val[1] if in_val else '';"
+        "data":"out_val=in_val[1] if len(in_val) == 2 else '';"
       }
     ]
   },
@@ -253,6 +279,32 @@ DETAIL_RULES = [
       }
     ]
   },
+  {
+    "key": "read_num",
+    "rules": [
+      {
+        "kind": "xpath",
+        "data": "//span[@id='sg_readNum3']/text()"
+      },
+      {
+        "kind": "python",
+        "data": "out_val=sum([int(item.strip()) for item in in_val])"
+      }
+    ]
+  },
+  {
+    "key": "like_num",
+    "rules": [
+      {
+        "kind":"xpath",
+        "data":"//span[@id='sg_likeNum3']/text()"
+      },
+      {
+        "kind":"python",
+        "data":"out_val=sum([int(item.strip()) for item in in_val])"
+      }
+    ]
+  }
 
 ]
 class Extractor(object):

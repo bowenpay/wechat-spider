@@ -131,9 +131,9 @@ def topic_list(request):
     context = {}
     # 文章信息
     params = request.GET.copy()
-    _obj_list = Topic.objects.order_by('-publish_time').values('id', 'wechat__id', 'wechat__name', 'wechat__status', 'avatar', 'title', 'url', 'publish_time', 'available')
+    _obj_list = Topic.objects.order_by('-id').values('id', 'wechat__id', 'wechat__name', 'wechat__status', 'avatar', 'title', 'url', 'publish_time', 'available', 'read_num', 'like_num')
 
-    paginator = Paginator(_obj_list, 50 )  # Show 10 contacts per page
+    paginator = Paginator(_obj_list, 50)  # Show 10 contacts per page
 
     page = request.GET.get('page')
     try:
@@ -152,12 +152,13 @@ def topic_list(request):
     })
     return render_to_response('wechat/topic_list.html', {}, context_instance=RequestContext(request, context))
 
+
 @login_required
 def topic_available_list(request):
     context = {}
     # 文章信息
     params = request.GET.copy()
-    _obj_list = Topic.objects.filter(available='可用').order_by('-publish_time').values('id', 'wechat__id', 'wechat__name', 'avatar', 'title', 'url', 'publish_time', 'available')
+    _obj_list = Topic.objects.filter(available='可用').order_by('-publish_time').values('id', 'wechat__id', 'wechat__name', 'avatar', 'title', 'url', 'publish_time', 'available', 'read_num', 'like_num')
 
     paginator = Paginator(_obj_list, 50 )  # Show 10 contacts per page
 
@@ -184,7 +185,7 @@ def wechat_topics(request, id_):
     context = {}
     # 文章信息
     params = request.GET.copy()
-    _obj_list = Topic.objects.filter(wechat=wechat).order_by('-publish_time').values('id', 'avatar', 'title', 'url', 'publish_time', 'words')
+    _obj_list = Topic.objects.filter(wechat=wechat).order_by('-publish_time').values('id', 'avatar', 'title', 'url', 'publish_time', 'words', 'read_num', 'like_num')
 
     paginator = Paginator(_obj_list, 50 )  # Show 10 contacts per page
 
@@ -206,6 +207,7 @@ def wechat_topics(request, id_):
     })
     return render_to_response('wechat/wechat_topics.html', {}, context_instance=RequestContext(request, context))
 
+
 @csrf_exempt
 @login_required
 def topic_detail(request, id_):
@@ -213,6 +215,7 @@ def topic_detail(request, id_):
     return render_to_response('wechat/topic_detail.html', {}, context_instance=RequestContext(request, {
         "topic": topic
     }))
+
 
 @csrf_exempt
 @login_required
@@ -226,6 +229,7 @@ def topic_edit(request, id_):
             'ret': 0,
             'msg': available
         })
+
 
 @login_required
 def topic_add(request):
@@ -293,7 +297,6 @@ def search_wechat(query):
     return wechats
 
 
-
 @login_required
 def keywords_list(request):
     context = {}
@@ -349,7 +352,9 @@ def proxy_status(request):
             'message': '没有有效的下载代理'
         })
 
+
 ### api 接口
+
 
 def api_search(request):
     query = request.GET.get('query')

@@ -33,6 +33,8 @@
             <th>标题</th>
             <th>原文链接</th>
             <th>时间</th>
+            <th>阅读数</th>
+            <th>点赞数</th>
             <th>字数</th>
           </tr>
         </thead>
@@ -44,6 +46,8 @@
             <td><a target="_blank" href="{% url 'wechat.topic_detail' item.id %}">{{ item.title}}</a></td>
             <td><a target="_blank" href="{{ item.url }}">{{ item.url | truncatechars:40 }}</a></td>
             <td>{{ item.publish_time}}</td>
+            <td>{{ item.read_num }}</td>
+            <td>{{ item.like_num }}</td>
             <td>{{ item.words }}</td>
           </tr>
         {% endfor %}
