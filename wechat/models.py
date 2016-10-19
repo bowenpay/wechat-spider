@@ -59,10 +59,10 @@ class Topic(models.Model):
     read_num = models.IntegerField(default=0, verbose_name='阅读数')
     like_num = models.IntegerField(default=0, verbose_name='点赞数')
 
-    publish_time = models.DateTimeField(verbose_name='发布时间')
+    publish_time = models.DateTimeField(db_index=True, verbose_name='发布时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
-    available = models.CharField(max_length=500, default='', verbose_name='是否可用')
+    available = models.CharField(db_index=True, max_length=500, default='', verbose_name='是否可用')
 
     def __unicode__(self):
         return self.title
