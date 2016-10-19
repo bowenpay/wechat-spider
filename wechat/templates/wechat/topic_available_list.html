@@ -24,17 +24,19 @@
           </thead>
           <tbody>
           {% for item in topics %}
+            {% with wechat=item.wechat %}
             <tr>
               <td>{{ item.id}}</td>
               <td><img src="{{ item.avatar| default:'/static/web/images/touxiang.jpg'}}" class="topic-avatar"> </td>
               <td><a target="_blank" href="{% url 'wechat.topic_detail' item.id %}">{{ item.title}}</a></td>
               <td><a target="_blank" href="{{ item.url }}"><i class="fa fa-weixin fa-lg"></i></a></td>
-              <td><a target="_blank" href="{% url 'wechat.wechat_topics' item.wechat__id %}">{{ item.wechat__name}}</a></td>
+              <td><a target="_blank" href="{% url 'wechat.wechat_topics' wechat.id %}">{{ wechat.name}}</a></td>
               <td>{{ item.publish_time}}</td>
               <td>{{ item.read_num }}</td>
               <td>{{ item.like_num }}</td>
               <td>{{ item.available }}</td>
             </tr>
+            {% endwith %}
           {% endfor %}
           </tbody>
         </table>
