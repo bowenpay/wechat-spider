@@ -102,7 +102,7 @@ NORMAL_RULES = [
       },
       {
         "kind": "python",
-        "data": "out_val=sum([int(item.strip()) for item in in_val])"
+        "data": "out_val=sum([int(item.strip().strip('+')) for item in in_val])"
       }
     ]
   },
@@ -115,7 +115,7 @@ NORMAL_RULES = [
       },
       {
         "kind":"python",
-        "data":"out_val=sum([int(item.strip()) for item in in_val])"
+        "data":"out_val=sum([int(item.strip().strip('+')) for item in in_val])"
       }
     ]
   }
