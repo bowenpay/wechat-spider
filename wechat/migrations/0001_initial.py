@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('publish_time', models.DateTimeField(verbose_name=b'\xe5\x8f\x91\xe5\xb8\x83\xe6\x97\xb6\xe9\x97\xb4', db_index=True)),
                 ('create_time', models.DateTimeField(auto_now_add=True, verbose_name=b'\xe5\x88\x9b\xe5\xbb\xba\xe6\x97\xb6\xe9\x97\xb4')),
                 ('update_time', models.DateTimeField(auto_now=True, verbose_name=b'\xe6\x9b\xb4\xe6\x96\xb0\xe6\x97\xb6\xe9\x97\xb4')),
-                ('available', models.CharField(default=b'', max_length=500, verbose_name=b'\xe6\x98\xaf\xe5\x90\xa6\xe5\x8f\xaf\xe7\x94\xa8', db_index=True)),
+                ('available', models.CharField(default=b'', max_length=100, verbose_name=b'\xe6\x98\xaf\xe5\x90\xa6\xe5\x8f\xaf\xe7\x94\xa8', db_index=True)),
             ],
             options={
                 'verbose_name_plural': '\u6587\u7ae0',
