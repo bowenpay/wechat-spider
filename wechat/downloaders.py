@@ -270,9 +270,10 @@ class SeleniumDownloaderBackend(object):
 
         elems = [stringify_children(item).replace('red_beg', '').replace('red_end', '') for item in tree.xpath("//div[@class='txt-box']/h3/a")]
         hrefs = tree.xpath("//div[@class='txt-box']/h3/a/@href")
-        avatars = tree.xpath("//div[@class='img-box']/a/img/@src")
-        elems_abstracts = tree.xpath("//div[@class='txt-box']/p")
+        #avatars = tree.xpath("//div[@class='img-box']/a/img/@src")
+        #elems_abstracts = tree.xpath("//div[@class='txt-box']/p")
         #abstracts = [item.text.strip() if item.text else '' for item in elems_abstracts]
+        avatars = [''] * len(elems)
         abstracts = [''] * len(elems)
         links = []
         for idx, item in enumerate(elems):
