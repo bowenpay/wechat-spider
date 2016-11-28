@@ -185,9 +185,10 @@ class SeleniumDownloaderBackend(object):
         """ 找到微信号，并点击进入微信号的文章列表页面 """
         browser = self.browser
         # 找到搜索列表第一个微信号, 点击打开新窗口
-        element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/h4/span/label")
+        element_wechat = browser.find_element_by_xpath("//div[@class='txt-box']/p[@class='info']/label")
+        element_wechat_title = browser.find_element_by_xpath("//div[@class='txt-box']/p[@class='tit']/a")
         if element_wechat and element_wechat.text == wechatid:
-            element_wechat.click()
+            element_wechat_title.click()
             time.sleep(3)
             # 切到当前的文章列表页窗口
             new_handler = browser.window_handles[-1]
@@ -267,13 +268,14 @@ class SeleniumDownloaderBackend(object):
         htmlparser = etree.HTMLParser()
         tree = etree.parse(StringIO(body), htmlparser)
 
-        elems = [stringify_children(item).replace('red_beg', '').replace('red_end', '') for item in tree.xpath("//div[@class='txt-box']/h4/a")]
-        hrefs = tree.xpath("//div[@class='txt-box']/h4/a/@href")
-        avatars = tree.xpath("//div[@class='img_box2']/a/img/@src")
+        elems = [stringify_children(item).replace('red_beg', '').replace('red_end', '') for item in tree.xpath("//div[@class='txt-box']/h3/a")]
+        hrefs = tree.xpath("//div[@class='txt-box']/h3/a/@href")
+        avatars = tree.xpath("//div[@class='img-box']/a/img/@src")
         elems_abstracts = tree.xpath("//div[@class='txt-box']/p")
-        abstracts = [item.text.strip() if item.text else '' for item in elems_abstracts]
+        #abstracts = [item.text.strip() if item.text else '' for item in elems_abstracts]
+        abstracts = [''] * len(elems)
         links = []
-        for idx, item in enumerate(elems[:10]):
+        for idx, item in enumerate(elems):
             title = item
             print title
             if not title:
