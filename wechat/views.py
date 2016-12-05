@@ -276,14 +276,14 @@ def search_wechat(query):
     #print rsp.content
     htmlparser = etree.HTMLParser()
     tree = etree.parse(StringIO(rsp.text), htmlparser)
-    nodes = tree.xpath('//div[contains(@class,"wx-rb")]')
+    nodes = tree.xpath('//ul[@class="news-list2"]/li')
     wechats = []
     for node in nodes:
-        name =  ''.join([x for x in node.find(".//h3").itertext() if x not in ["red_beg", "red_end"]])
-        avatar = node.find('.//img').attrib['src']
-        qrcode = node.find(".//div[@class='pos-box']/img").attrib['src']
-        wechatid = node.find(".//h4/span/label").text
-        intro_node = node.find(".//p/span[2]")
+        name =  ''.join([x for x in node.find(".//p[@class='tit']/a").itertext() if x not in ["red_beg", "red_end"]])
+        avatar = node.find(".//div[@class='img-box']/a/img").attrib['src']
+        qrcode = node.find(".//div[@class='ew-pop']/span/img").attrib['src']
+        wechatid = node.find(".//label[@name='em_weixinhao']").text
+        intro_node = node.find(".//dl[1]/dd")
         intro = ''.join([x for x in intro_node.itertext() if x not in ["red_beg", "red_end"]])
 
         wechats.append({
