@@ -49,6 +49,10 @@ NORMAL_RULES = [
     "key":"source",
     "rules":[
       {
+          "kind":"image",
+          "data":""
+      },
+      {
         "kind":"WechatContent",
         "data":""
       }
@@ -64,6 +68,10 @@ NORMAL_RULES = [
       {
         "kind":"python",
         "data":"from lxml import html;out_val=''.join([html.tostring(child, encoding='unicode') for child in in_val])"
+      },
+      {
+          "kind":"image",
+          "data":""
       },
       {
         "kind":"WechatContent",
@@ -152,6 +160,10 @@ DETAIL_RULES = [
     "key":"source",
     "rules":[
       {
+          "kind":"image",
+          "data":""
+      },
+      {
         "kind":"WechatContent",
         "data":""
       }
@@ -167,6 +179,10 @@ DETAIL_RULES = [
       {
         "kind":"python",
         "data":"from lxml import html;out_val=''.join([html.tostring(child, encoding='unicode') for child in in_val])"
+      },
+      {
+          "kind":"image",
+          "data":""
       },
       {
         "kind":"WechatContent",
