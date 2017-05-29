@@ -71,6 +71,10 @@ $ git clone https://github.com/bowenpay/wechat-spider.git
 $ cd wechat-spider
 $ pip install -r requirements.txt
 ```
+如果最后一步较慢, 你也可以使用国内的pip源
+```
+$ pip install -r requirements.txt -i https://pypi.douban.com/simple
+```
 
 3) 创建mysql数据库
 
