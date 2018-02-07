@@ -1,24 +1,26 @@
 # -*- coding: utf-8 -*-
+from selenium.common.exceptions import NoSuchElementException
+
 __author__ = 'yijingping'
-import time
-import json
-import platform
-from datetime import datetime, timedelta
-from dateutil.parser import parse
-from random import sample, randint
-from lxml import etree
 from io import StringIO
+import json
+import logging
+import platform
+from random import randint
+import time
+
+from django.conf import settings
+from lxml import etree
 from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.proxy import Proxy, ProxyType
-from wechatspider.util import get_uniqueid, get_redis
-from wechat.models import Topic
+
 from wechat.constants import KIND_DETAIL, KIND_KEYWORD, KIND_NORMAL
-from django.conf import settings
+from wechat.models import Topic
+from wechatspider.util import get_redis, get_unique_id
 from .util import stringify_children
 
-import logging
 logger = logging.getLogger()
 
 CRAWLER_CONFIG = settings.CRAWLER_CONFIG
@@ -27,7 +29,8 @@ CRAWLER_CONFIG = settings.CRAWLER_CONFIG
 class SeleniumDownloaderBackend(object):
     headers = [
         {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                          'Chrome/41.0.2272.118 Safari/537.36'
         }
     ]
 
@@ -72,9 +75,9 @@ class SeleniumDownloaderBackend(object):
         # 启动浏览器
         firefox_profile = webdriver.FirefoxProfile()
         # 禁止加载image
-        #firefox_profile.set_preference('permissions.default.stylesheet', 2)
-        #firefox_profile.set_preference('permissions.default.image', 2)
-        #firefox_profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
+        firefox_profile.set_preference('permissions.default.stylesheet', 2)
+        firefox_profile.set_preference('permissions.default.image', 2)
+        firefox_profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
         # 代理
         if proxy.is_valid():
             myProxy = '%s:%s' % (proxy.host, proxy.port)
@@ -83,12 +86,17 @@ class SeleniumDownloaderBackend(object):
                 'httpProxy': myProxy,
                 'ftpProxy': myProxy,
                 'sslProxy': myProxy,
-                'noProxy': ''})
+                'noProxy': ''
+            })
 
             browser = webdriver.Firefox(firefox_profile=firefox_profile, proxy=ff_proxy)
         else:
             browser = webdriver.Firefox(firefox_profile=firefox_profile)
 
+        browser = webdriver.Firefox()
+        # from splinter import Browser
+        # browser = Browser()
+        # browser = browser
         return browser
 
     def download(self, url):
@@ -120,6 +128,7 @@ class SeleniumDownloaderBackend(object):
     def download_wechat_topic_detail(self, data, process_topic):
         """ 根据url爬取文章的详情页 """
         url = data['url']
+        Topic.objects.filter()
         browser = self.browser
         try:
             browser.get(url)
@@ -171,6 +180,7 @@ class SeleniumDownloaderBackend(object):
 
     def visit_wechat_index_keyword(self, word):
         """ 访问微信首页，输入关键词，点击搜文章 """
+        # TODO: 为了尽量多爬取数据,可以组合筛选条件进行,比如: 筛选时间,公众号名称,
         browser = self.browser
         browser.get("http://weixin.sogou.com/")
         print browser.title
@@ -219,14 +229,14 @@ class SeleniumDownloaderBackend(object):
             print title
             if not title:
                 continue
-            uniqueid = get_uniqueid('%s:%s' % (wechat_id, title))
+            unique_id = get_unique_id('%s:%s' % (wechat_id, title))
             try:
-                Topic.objects.get(uniqueid=uniqueid)
+                Topic.objects.get(unique_id=unique_id)
             except Topic.DoesNotExist:
-                #print len(elems), len(hrefs), len(avatars), len(abstracts)
-                #print elems, hrefs, avatars, abstracts
+                # print len(elems), len(hrefs), len(avatars), len(abstracts)
+                # print elems, hrefs, avatars, abstracts
                 links.append((title, hrefs[idx], avatars[idx], abstracts[idx]))
-                logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
+                logger.debug('文章不存在, title=%s, unique_id=%s' % (title, unique_id))
         for title, link, avatar, abstract in reversed(links):
             # 可以访问了
             browser.get(link)
@@ -262,33 +272,54 @@ class SeleniumDownloaderBackend(object):
     def download_wechat_keyword_topics(self, word, process_topic):
         """ 在关键词下的文章列表页面，逐一点击打开每一篇文章，并爬取 """
         browser = self.browser
-        js = """ return document.documentElement.innerHTML; """
-        body = browser.execute_script(js)
 
-        htmlparser = etree.HTMLParser()
-        tree = etree.parse(StringIO(body), htmlparser)
-
-        elems = [stringify_children(item).replace('red_beg', '').replace('red_end', '') for item in tree.xpath("//div[@class='txt-box']/h3/a")]
-        hrefs = tree.xpath("//div[@class='txt-box']/h3/a/@href")
-        #avatars = tree.xpath("//div[@class='img-box']/a/img/@src")
-        #elems_abstracts = tree.xpath("//div[@class='txt-box']/p")
-        #abstracts = [item.text.strip() if item.text else '' for item in elems_abstracts]
-        avatars = [''] * len(elems)
-        abstracts = [''] * len(elems)
         links = []
-        for idx, item in enumerate(elems):
-            title = item
-            print title
-            if not title:
-                continue
-            uniqueid = get_uniqueid('%s:%s' % (word, title))
+        while 1:
+            js = """ return document.documentElement.innerHTML; """
+            body = browser.execute_script(js)
+
+            htmlparser = etree.HTMLParser()
+            tree = etree.parse(StringIO(body), htmlparser)
+
+            elems = [stringify_children(item).replace('red_beg', '').replace('red_end', '') for item in
+                     tree.xpath("//div[@class='txt-box']/h3/a")]
+
+            hrefs = tree.xpath("//div[@class='txt-box']/h3/a/@href")
+            # avatars = tree.xpath("//div[@class='img-box']/a/img/@src")
+            # elems_abstracts = tree.xpath("//div[@class='txt-box']/p")
+            # abstracts = [item.text.strip() if item.text else '' for item in elems_abstracts]
+            avatars = [''] * len(elems)
+            abstracts = [''] * len(elems)
+
+            for idx, item in enumerate(elems):
+                title = item
+                print("%d : %s" % (idx, title))
+                if not title:
+                    continue
+                unique_id = get_unique_id('%s:%s' % (word, title))
+                try:
+                    Topic.objects.get(unique_id=unique_id)
+                except Topic.DoesNotExist:
+                    # print len(elems), len(hrefs), len(avatars), len(abstracts)
+                    print elems, hrefs, avatars, abstracts
+                    links.append((title, hrefs[idx], avatars[idx], abstracts[idx]))
+                    logger.debug('文章不存在, title=%s, unique_id=%s' % (title, unique_id))
+
+            # 寻找下一页按钮
+            # TODO: 2018-02-06 14:21:01 修改为splinter少很多这种问题,代码大量精简
             try:
-                Topic.objects.get(uniqueid=uniqueid)
-            except Topic.DoesNotExist:
-                #print len(elems), len(hrefs), len(avatars), len(abstracts)
-                print elems, hrefs, avatars, abstracts
-                links.append((title, hrefs[idx], avatars[idx], abstracts[idx]))
-                logger.debug('文章不存在, title=%s, uniqueid=%s' % (title, uniqueid))
+                button_next = browser.find_element_by_xpath("//a[@id='sogou_next']")
+                if button_next:
+                    button_next.click()
+                    time.sleep(2)
+            except NoSuchElementException as e:
+                print(e)
+                print("没有下一页按钮了")
+                print('-' * 50)
+                break
+
+
+        # 访问详情列表链接
         for title, link, avatar, abstract in reversed(links):
             # 可以访问了
             browser.get(link)

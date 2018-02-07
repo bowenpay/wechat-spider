@@ -17,7 +17,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -28,7 +27,6 @@ SECRET_KEY = ''
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -76,7 +74,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'wechatspider.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
@@ -86,7 +83,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -101,14 +97,13 @@ USE_L10N = True
 
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static'
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR,  'templates'),
+    os.path.join(BASE_DIR, 'templates'),
 )
 
 STATICFILES_FINDERS = (
@@ -116,9 +111,9 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-
 # messages
 from django.contrib import messages
+
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
@@ -171,7 +166,7 @@ CRAWLER_CONFIG = {
     'global_limit_speed': 'unicrawler:global_limit_speed',
     'antispider': 'unicrawler:antispider'
 }
-CRAWLER_GLOBAL_LIMIT_SPEED = 20 * 1000 # 毫秒
+CRAWLER_GLOBAL_LIMIT_SPEED = 20 * 1000  # 毫秒
 
 # aliyun oss2
 OSS2_ENABLE = False
@@ -191,6 +186,10 @@ try:
     from local_settings import *
 except ImportError:
     import sys, traceback
-    sys.stderr.write("Warning: Can't find the file 'local_settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
+
+    sys.stderr.write(
+        "Warning: Can't find the file 'local_settings.py' in the directory containing %r. It appears you've "
+        "customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file "
+        "settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
     sys.stderr.write("\nFor debugging purposes, the exception was:\n\n")
     traceback.print_exc()

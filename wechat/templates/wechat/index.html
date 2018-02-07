@@ -61,6 +61,7 @@
               <th>公众号和ID</th>
               <th>爬取频率</th>
               <th>下次爬取时间</th>
+              <th>更新时间</th>
               <th>最近1天文章</th>
               <th>最近1周</th>
               <th>文章总数</th>
@@ -77,6 +78,7 @@
               </td>
               <td>{{ item.frequency}}</td>
               <td>{% if item.frequency > 0 %}{{ item.next_crawl_time}}{% else %}N/A{% endif %}</td>
+              <td>{{item.update_time}}</td>
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.last_day_topics_count}}</a></td>
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.last_week_topics_count}}</a></td>
               <td><a href="{% url 'wechat.wechat_topics' item.id %}">{{ item.total_topics_count}}</a></td>

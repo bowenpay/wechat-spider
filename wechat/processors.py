@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'yijingping'
-from wechatspider.util import get_uniqueid
 from wechat.constants import KIND_DETAIL, KIND_KEYWORD
-from wechat.models import Wechat
+from wechat.models import Topic, Wechat
+from wechatspider.util import get_unique_id
+
 
 class DjangoModelBackend(object):
     def __init__(self, _class):
@@ -25,6 +26,7 @@ class DjangoModelBackend(object):
             name = params.pop('name', '')
             intro = params.pop('intro', '')
             qrcode = params.pop('qrcode', '')
+            avatar = params.get('avatar', '')
             wechat, created = Wechat.objects.get_or_create(wechatid=wechatid, defaults={
                 "wechatid": wechatid,
                 "name": name,
@@ -32,18 +34,29 @@ class DjangoModelBackend(object):
                 "qrcode": qrcode,
                 "status": Wechat.STATUS_DISABLE
             })
+            if not wechat.avatar and avatar:
+                wechat.avatar = avatar
+                wechat.save()
+                print("更新了公众号: %s" % wechat)
+                print('-' * 50)
+
             # 如果微信号状态为已删除,则不保存这篇文章
             if wechat.status == Wechat.STATUS_DELETE:
                 return
 
             # 保存文章
             params['wechat_id'] = wechat.id
-            params['uniqueid'] = get_uniqueid('%s:%s' % (params['wechat_id'], params['title']))
-            C.objects.update_or_create(uniqueid=params['uniqueid'], defaults=params)
+            params['unique_id'] = get_unique_id('%s:%s' % (params['wechat_id'], params['title']))
+            C.objects.update_or_create(unique_id=params['unique_id'], defaults=params)
 
+            topics = Topic.objects.filter(wechat=wechat).order_by('-update_time')
+            if topics and topics[0].publish_time:
+                wechat.update_time = topics[0].publish_time
+                wechat.save()
+                print("更新了公众号%s 最近更新时间" % wechat)
+                print('-' * 50)
         else:
             params.pop('kind', None)
             params.pop('retry', None)
-            params['uniqueid'] = get_uniqueid('%s:%s' % (params['wechat_id'], params['title']))
-            C.objects.update_or_create(uniqueid=params['uniqueid'], defaults=params)
-
+            params['unique_id'] = get_unique_id('%s:%s' % (params['wechat_id'], params['title']))
+            C.objects.update_or_create(unique_id=params['unique_id'], defaults=params)

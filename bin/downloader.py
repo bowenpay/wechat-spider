@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 # 加载django环境
 import sys
+
 import os
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'wechatspider.settings'
 import django
+
 django.setup()
 
 import time
@@ -18,6 +21,7 @@ from wechat.proxies import MysqlProxyBackend
 from wechat.downloaders import SeleniumDownloaderBackend
 from wechat.constants import KIND_HISTORY, KIND_DETAIL, KIND_KEYWORD
 import logging
+
 logger = logging.getLogger()
 
 CRAWLER_CONFIG = settings.CRAWLER_CONFIG
@@ -32,13 +36,13 @@ class Downloader(object):
         return MysqlProxyBackend()
 
     def check_limit_speed(self):
-            proxy = self.get_proxy()
-            key = '%s:%s' % (CRAWLER_CONFIG['global_limit_speed'], proxy)
-            if self.redis.exists(key):
-                return True, proxy
-            else:
-                self.redis.psetex(key, CRAWLER_GLOBAL_LIMIT_SPEED, CRAWLER_GLOBAL_LIMIT_SPEED)
-                return False, proxy
+        proxy = self.get_proxy()
+        key = '%s:%s' % (CRAWLER_CONFIG['global_limit_speed'], proxy)
+        if self.redis.exists(key):
+            return True, proxy
+        else:
+            self.redis.psetex(key, CRAWLER_GLOBAL_LIMIT_SPEED, CRAWLER_GLOBAL_LIMIT_SPEED)
+            return False, proxy
 
     def run(self):
         r = self.redis
@@ -62,6 +66,7 @@ class Downloader(object):
                     r.lpush(CRAWLER_CONFIG["downloader"], resp_data[1])
                 else:
                     print '# 未被限制,可以下载'
+
                     # 处理文章的函数,用于回调. 每下载一篇, 处理一篇
                     def process_topic(topic):
                         if topic.get('kind', None) == KIND_DETAIL:
@@ -78,7 +83,7 @@ class Downloader(object):
                         if data.get('kind') == KIND_DETAIL:
                             res = browser.download_wechat_topic_detail(data, process_topic)
                         elif data.get('kind') == KIND_HISTORY:
-                            #res = browser.download_wechat_history(data, process_topic)
+                            # res = browser.download_wechat_history(data, process_topic)
                             pass
                         elif data.get('kind') == KIND_KEYWORD:
                             res = browser.download_wechat_keyword(data, process_topic)
@@ -87,7 +92,7 @@ class Downloader(object):
 
                     time.sleep(randint(1, 5))
             except Exception as e:
-                print e
+                print(e)
                 raise
 
 

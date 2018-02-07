@@ -18,7 +18,7 @@ from django.utils.encoding import smart_str, smart_unicode
 from django.conf import settings
 from wechat.models import Topic
 from wechat.processors import DjangoModelBackend
-from wechatspider.util import get_redis, get_uniqueid
+from wechatspider.util import get_redis, get_unique_id
 import logging
 logger = logging.getLogger()
 

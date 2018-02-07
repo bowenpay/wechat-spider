@@ -24,7 +24,7 @@
           {% for item in keywords %}
             <tr>
               <td>{{ item.id }}</td>
-              <td>{{ item.text }}</td>
+              <td><a target="{{item.text}}" href="/wechat/topic/?keywords={{item.text}}">{{ item.text }}</a></td>
               <td>{{ item.intro }}</td>
               <td>{{ item.frequency}}</td>
               <td>{% if item.frequency > 0 %}{{ item.next_crawl_time}}{% else %}N/A{% endif %}</td>

@@ -2,6 +2,7 @@
 __author__ = 'yijingping'
 from .models import Proxy
 
+
 class MysqlProxyBackend(object):
     def __init__(self):
         proxy = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_SUCCESS).order_by('?').first()
