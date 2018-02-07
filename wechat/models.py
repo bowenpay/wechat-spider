@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'yijingping'
-from django.db import models
 from datetime import date, datetime, timedelta
+
+from django.db import models
+
 
 class Wechat(models.Model):
     STATUS_DEFAULT = 0
@@ -20,6 +22,7 @@ class Wechat(models.Model):
     frequency = models.IntegerField(default=0, verbose_name='爬取频率, 单位:分钟')
     next_crawl_time = models.DateTimeField(auto_now_add=True, verbose_name='下次爬取时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    update_time = models.DateTimeField(auto_now_add=True, verbose_name='更新时间', blank=True)
     status = models.IntegerField(default=STATUS_DEFAULT, choices=STATUS_CHOICES, verbose_name="状态")
 
     def last_day_topics_count(self):
@@ -36,7 +39,7 @@ class Wechat(models.Model):
         return Topic.objects.filter(wechat=self).count()
 
     def __unicode__(self):
-        return self.name
+        return "%d: %s %s" % (self.id, self.wechatid, self.name)
 
     class Meta:
         verbose_name_plural = "公众号"
@@ -44,13 +47,14 @@ class Wechat(models.Model):
 
 class Topic(models.Model):
     wechat = models.ForeignKey('Wechat', verbose_name='公众号')
-    uniqueid = models.CharField(unique=True, max_length=100, verbose_name='url的md5值')
+    unique_id = models.CharField(unique=True, max_length=100, verbose_name='url的md5值')
     words = models.IntegerField(default=0, verbose_name='字数')
 
     url = models.CharField(max_length=500, default='', verbose_name='文章的url')
     avatar = models.CharField(max_length=500, default='', verbose_name='缩略图地址')
     title = models.CharField(max_length=200, verbose_name='标题')
     origin_title = models.CharField(max_length=200, default='', verbose_name='原文标题')
+    author = models.CharField(max_length=200, default='', verbose_name='作者')
 
     abstract = models.TextField(default='', verbose_name='内容简介')
     content = models.TextField(default='', verbose_name='文章内容')
@@ -76,9 +80,9 @@ class Proxy(models.Model):
     STATUS_SUCCESS = 1
     STATUS_FAIL = 2
     STATUS_CHOICES = (
-        (STATUS_NEW,'未检测'),
-        (STATUS_SUCCESS,'检测成功'),
-        (STATUS_FAIL,'检测失败'),
+        (STATUS_NEW, '未检测'),
+        (STATUS_SUCCESS, '检测成功'),
+        (STATUS_FAIL, '检测失败'),
     )
     KIND_SEARCH = 0
     KIND_DOWNLOAD = 1
@@ -103,10 +107,10 @@ class Proxy(models.Model):
 
 class Word(models.Model):
     KIND_KEYWORD = 0
-    #KIND_TOPIC = 1 #
+    # KIND_TOPIC = 1 #
     KIND_CHOICES = (
         (KIND_KEYWORD, '关键词'),
-        #(KIND_TOPIC, '话题'),
+        # (KIND_TOPIC, '话题'),
     )
     kind = models.IntegerField(default=KIND_KEYWORD, choices=KIND_CHOICES, verbose_name="类型")
     text = models.CharField(max_length=100, verbose_name='词')
