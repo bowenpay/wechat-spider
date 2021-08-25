@@ -20,7 +20,7 @@ def get_redis():
     return redis.Redis(connection_pool=get_redis_pool())
 
 
-def get_uniqueid(url):
+def get_unique_id(url):
     link = get_link_from_url(url)
     return md5(link).hexdigest()
 

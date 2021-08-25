@@ -5,3 +5,7 @@ local_settings.py
 .DS_Store
 /static/
 t.py
+
+.python-version
+db.sqlite3
+*geckodriver.log

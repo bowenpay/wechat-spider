@@ -166,6 +166,7 @@ $ python bin/extractor.py
 $ python bin/processor.py
 ```
 
+
 以上步骤执行成功，并能爬取文章后。可以参考以下部分配置生产环境。
 
 # 部署nginx
@@ -181,4 +182,31 @@ $ python bin/processor.py
 
 
 # API接口文档
+
+
+# TODO list
+
+- 补充文档
+
+### 底层技术栈
+- 替换浏览器驱动为splinter -> 代码更为简洁,并且可以灵活支持较多类型浏览器
+- django rest framework
+- django版本升级到最新
+
+### 新增功能
+- 添加搜索和筛选功能,增加按照各种字段进行排序功能(公众号,文章)
+- 对django部分代码整理,前后端分离,更好支持API平台 -> Django rest framework
+- 对前端模板部分使用generic view类似模式进行组织
+- django admin 可能使用新版本后就能接受了,是在不能接受可以换一个包
+
+### 效率
+- 对文章爬取进行排重,避免重复爬取
+
+### 部署
+- 增加fabric等支持
+
+### 易用性优化
+- 文章内部有链接部分正则匹配替换为可以点击的(由于微信自身问题,链接都是点击不了的)
+
+
 

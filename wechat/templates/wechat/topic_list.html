@@ -30,7 +30,8 @@
               <th>标题</th>
               <th>原文链接</th>
               <th>公众号</th>
-              <th>时间</th>
+              <th>发布时间</th>
+              <th>抓取时间</th>
               <th>阅读数</th>
               <th>点赞数</th>
               <th>是否可用</th>
@@ -47,6 +48,7 @@
               <td><a target="_blank" href="{{ item.url }}"><i class="fa fa-weixin fa-lg"></i></a></td>
               <td><a target="_blank" href="{% url 'wechat.wechat_topics' wechat.id %}">{{ wechat.name}}</a></td>
               <td>{{ item.publish_time}}</td>
+              <td>{{ item.create_time}}</td>
               <td>{{ item.read_num }}</td>
               <td>{{ item.like_num }}</td>
               <td>{{ item.available }}</td>
